@@ -31,7 +31,10 @@ public class AppConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(sessionInterceptor)
-                .addPathPatterns("/private/**");
+                .addPathPatterns("/feed", "/detailNote", "/createNote",
+                        "/deleteNote", "/deleteUserFromSharedNote",
+                        "/editNote", "/logout", "/multipleDeleteNote",
+                        "/md", "/shareNote", "/profile");
     }
 /*
     @Bean

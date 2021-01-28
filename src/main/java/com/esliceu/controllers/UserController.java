@@ -36,7 +36,7 @@ public class UserController {
         }
 
         session.setAttribute("userid", user.getUserid());
-        return "redirect:/private/feed";
+        return "redirect:/feed";
     }
 
     @PostMapping("/register")
@@ -50,12 +50,13 @@ public class UserController {
 
         if(password1.equals(password2)) {
             userService.userRegister(username, email, "NATIVE", password1);
-            userlogin(model, email, password1, csrftoken);
+            User user = userService.getUserByEmailAndAuthAndPassword(email, "NATIVE", password1);
+            session.setAttribute("userid", user.getUserid());
+            return "redirect:/feed";
         } else {
             model.addAttribute("error", "passwordMismatching");
-            return "register";
         }
 
-        return "redirect:/private/feed";
+        return "register";
     }
 }

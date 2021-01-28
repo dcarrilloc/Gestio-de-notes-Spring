@@ -17,7 +17,7 @@
 <jsp:include page="header.jsp" />
 
 <div style="width: 40%; margin: 200px auto;">
-    <form action="${pageContext.request.contextPath}/editNote" method="POST">
+    <form action="${pageContext.request.contextPath}/saveNote" method="POST">
         <div style="background-color: #424242 !important; border-radius: 5px;">
             <div class="form-group" style="height: 50px; padding: 1rem 2rem 0 2rem;">
                 <input type="text" id="exampleFormControlInput1" name="title" value="${note.title}" placeholder="Title" style="background-color: #424242 !important; border: none; color: white; font-size: larger; width: 100%; outline: none;">

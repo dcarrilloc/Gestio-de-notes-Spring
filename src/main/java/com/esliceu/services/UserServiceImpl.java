@@ -17,6 +17,10 @@ public class UserServiceImpl implements UserService {
         return userRepo.findAll();
     }
 
+    public User getUserById(Long userid){
+        return userRepo.findById(userid).get();
+    }
+
     public User getUserByEmailAndAuthAndPassword(String email, String auth, String password) {
         return userRepo.findByEmailAndAuthAndPassword(email, auth, password);
     }
@@ -27,7 +31,6 @@ public class UserServiceImpl implements UserService {
         u.setEmail(email);
         u.setAuth(auth);
         u.setPassword(password1);
-
         userRepo.save(u);
     }
 }

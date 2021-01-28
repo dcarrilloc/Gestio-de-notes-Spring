@@ -8,7 +8,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page isELIgnored="false" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<jsp:useBean id="myUtils" class="utils.Util"/>
+<jsp:useBean id="myUtils" class="com.esliceu.utils.Util"/>
 <html>
 <head>
     <title>Note</title>
@@ -25,7 +25,7 @@
             <c:if test="${isowner == false}">
                 <fieldset disabled>
             </c:if>
-                <a href="${pageContext.request.contextPath}/md?id=${note.noteid}" style="cursor: pointer; text-decoration: none; color: white;">
+                <a href="${pageContext.request.contextPath}/edit?id=${note.noteid}" style="cursor: pointer; text-decoration: none; color: white;">
                     <div style="background-color: #424242 !important; border-radius: 5px;">
                         <div class="form-group" style="height: 50px; padding: 1rem 2rem 0 2rem;">
                             <h5 style="background-color: #424242 !important; border: none; color: white; font-size: larger; width: 100%; outline: none; text-overflow: ellipsis; white-space:nowrap; overflow:hidden">${note.title}</h5>
