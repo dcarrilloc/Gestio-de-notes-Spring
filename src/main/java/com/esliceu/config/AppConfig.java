@@ -1,9 +1,12 @@
 package com.esliceu.config;
 
+import com.esliceu.interceptors.SessionInterceptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.JstlView;
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
@@ -12,6 +15,10 @@ import org.springframework.web.servlet.view.UrlBasedViewResolver;
 @EnableWebMvc
 @ComponentScan("com.esliceu")
 public class AppConfig implements WebMvcConfigurer {
+
+    @Autowired
+    SessionInterceptor sessionInterceptor;
+
     @Bean
     public UrlBasedViewResolver viewResolver() {
         UrlBasedViewResolver resolver = new UrlBasedViewResolver();
@@ -19,6 +26,12 @@ public class AppConfig implements WebMvcConfigurer {
         resolver.setSuffix(".jsp");
         resolver.setViewClass(JstlView.class);
         return resolver;
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(sessionInterceptor)
+                .addPathPatterns("/private/**");
     }
 /*
     @Bean
@@ -29,6 +42,5 @@ public class AppConfig implements WebMvcConfigurer {
         return jsonConverter;
     }
     */
-
 
 }

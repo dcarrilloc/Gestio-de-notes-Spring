@@ -3,18 +3,28 @@ package com.esliceu.entities;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity(name="note")
+@Entity(name="Note")
 public class Note {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long noteid;
-    String title;
-    String body;
-    LocalDateTime creationDate;
-    LocalDateTime lastModDate;
+    private Long noteid;
+    private String title;
+    private String body;
+    private LocalDateTime creationDate;
+    private LocalDateTime lastModDate;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    User owner;
+    @ManyToOne(optional = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "owner", nullable = false)
+    private User owner;
 
-
+    @Override
+    public String toString() {
+        return "Note{" +
+                "noteid=" + noteid +
+                ", title='" + title + '\'' +
+                ", body='" + body + '\'' +
+                ", creationDate=" + creationDate +
+                ", lastModDate=" + lastModDate +
+                '}';
+    }
 }

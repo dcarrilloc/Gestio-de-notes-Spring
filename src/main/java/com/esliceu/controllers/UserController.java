@@ -1,0 +1,61 @@
+package com.esliceu.controllers;
+
+import com.esliceu.entities.User;
+import com.esliceu.services.NoteServiceImpl;
+import com.esliceu.services.UserServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.servlet.http.HttpSession;
+
+@Controller
+public class UserController {
+    @Autowired
+    NoteServiceImpl noteService;
+
+    @Autowired
+    UserServiceImpl userService;
+
+    @Autowired
+    HttpSession session;
+
+    @PostMapping("/login")
+    public String userlogin(Model model, @RequestParam(name = "email") String email, @RequestParam(name = "password") String password, @RequestParam(name = "_csrftoken") String csrftoken){
+
+         /* FORM VALIDATION */
+
+        User user = userService.getUserByEmailAndAuthAndPassword(email, "NATIVE", password);
+
+        if(user == null) {
+            // Usuario no existe
+            model.addAttribute("error", "Usuario no encontrado");
+            return "login";
+        }
+
+        session.setAttribute("userid", user.getUserid());
+        return "redirect:/private/feed";
+    }
+
+    @PostMapping("/register")
+    public String userregister(Model model,@RequestParam(name = "username") String username,
+                            @RequestParam(name = "email") String email,
+                            @RequestParam(name = "password1") String password1,
+                            @RequestParam(name = "password2") String password2,
+                            @RequestParam(name = "_csrftoken") String csrftoken){
+
+        /* FORM VALIDATION */
+
+        if(password1.equals(password2)) {
+            userService.userRegister(username, email, "NATIVE", password1);
+            userlogin(model, email, password1, csrftoken);
+        } else {
+            model.addAttribute("error", "passwordMismatching");
+            return "register";
+        }
+
+        return "redirect:/private/feed";
+    }
+}

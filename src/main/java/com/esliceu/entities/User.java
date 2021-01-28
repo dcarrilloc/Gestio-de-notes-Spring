@@ -1,19 +1,30 @@
 package com.esliceu.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-@Entity(name="user")
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Set;
+
+@Table(name = "User",
+        uniqueConstraints = { @UniqueConstraint( columnNames = { "email", "auth" } ) } )
+@Entity(name="User")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long userid;
-    String username;
-    String email;
-    String password;
+    private Long userid;
+    private String username;
+    private String email;
+    private String auth;
+    private String password;
 
+
+    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<Note> notes = new ArrayList<>();
 
     public Long getUserid() {
         return userid;
@@ -45,5 +56,32 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public List<Note> getNotes() {
+        return notes;
+    }
+
+    public void setNotes(List<Note> notes) {
+        this.notes = notes;
+    }
+
+    public String getAuth() {
+        return auth;
+    }
+
+    public void setAuth(String auth) {
+        this.auth = auth;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "userid=" + userid +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", auth='" + auth + '\'' +
+                ", password='" + password + '\'' +
+                '}';
     }
 }
