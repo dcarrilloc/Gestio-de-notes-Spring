@@ -10,7 +10,6 @@ import org.commonmark.renderer.html.HtmlRenderer;
 import org.commonmark.renderer.text.TextContentRenderer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,12 +42,13 @@ public class NoteServiceImpl implements NoteService {
         n.setOwner(userRepo.findById(userid).get());
         noteRepo.save(n);
     }
-
+    
     public void deleteNote(Long userid, Long noteid) {
         //User user = userRepo.findById(userid).get();
         Note note = noteRepo.findById(noteid).get();
         if(checkNoteOwnership(userid, noteid)) {
             // If user owns the note he can delete the note from the ddbb.
+            System.out.println(note.toString());
             noteRepo.delete(note);
         } else {
             // If user not owns the note he cannot delete it from the owner but only for himself.

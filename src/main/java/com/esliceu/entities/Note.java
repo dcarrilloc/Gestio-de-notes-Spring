@@ -14,7 +14,7 @@ public class Note {
     private LocalDateTime lastModDate;
 
     @ManyToOne(optional = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "owner", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User owner;
 
     public Long getNoteid() {

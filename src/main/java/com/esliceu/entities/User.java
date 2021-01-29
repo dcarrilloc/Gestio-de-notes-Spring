@@ -22,8 +22,8 @@ public class User {
     private String password;
 
 
-    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = true)
     private List<Note> notes = new ArrayList<>();
 
     public Long getUserid() {
