@@ -1,13 +1,8 @@
 package com.esliceu.entities;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Set;
 
 @Table(name = "User",
         uniqueConstraints = { @UniqueConstraint( columnNames = { "email", "auth" } ) } )

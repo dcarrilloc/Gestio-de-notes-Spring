@@ -59,4 +59,10 @@ public class UserController {
 
         return "register";
     }
+
+    @PostMapping("/logout")
+    public String userlogout(){
+        session.invalidate();
+        return "redirect:/login";
+    }
 }

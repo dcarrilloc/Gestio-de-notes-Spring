@@ -97,6 +97,4 @@ public class NoteServiceImpl implements NoteService {
         return renderedNote;
     }
 
-
-
 }
