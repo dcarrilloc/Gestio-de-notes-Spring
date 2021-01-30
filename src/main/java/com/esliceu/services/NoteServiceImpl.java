@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,17 +44,21 @@ public class NoteServiceImpl implements NoteService {
         noteRepo.save(n);
     }
     
-    public void deleteNote(Long userid, Long noteid) {
-        //User user = userRepo.findById(userid).get();
-        Note note = noteRepo.findById(noteid).get();
-        if(checkNoteOwnership(userid, noteid)) {
-            // If user owns the note he can delete the note from the ddbb.
-            System.out.println(note.toString());
-            noteRepo.delete(note);
-        } else {
-            // If user not owns the note he cannot delete it from the owner but only for himself.
-            System.out.println("no eres owner");
-        }
+    public void deleteNote(Long userid, Long[] noteid) {
+        List<Long> noteList = Arrays.asList(noteid);
+        noteList.forEach(note -> {
+            Optional<Note> noteToDelete = noteRepo.findById(note);
+            if(noteToDelete.isPresent()) {
+                Note delNote = noteToDelete.get();
+                if(checkNoteOwnership(userid, delNote.getNoteid())) {
+                    // If user owns the note he can delete the note from the ddbb.
+                    noteRepo.delete(delNote);
+                } else {
+                    // If user not owns the note he cannot delete it from the owner but only for himself.
+                    System.out.println("no eres owner");
+                }
+            }
+        });
     }
 
     public List<Note> getFeedNotesByUser(Long userid){

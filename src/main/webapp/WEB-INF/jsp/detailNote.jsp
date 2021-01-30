@@ -87,10 +87,8 @@
             </c:if>
 
             <form action="${pageContext.request.contextPath}/deleteNote" method="POST">
-                <input type="hidden" name="noteid" value="${note.noteid}">
+                <input type="hidden" name="notesToDelete" value="${note.noteid}">
                 <input type="hidden" name="_csrftoken" value="${csrfToken}">
-
-
 
                 <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModalCenter" style="display: flex; flex-flow: row nowrap; align-items: center;">
                     Delete

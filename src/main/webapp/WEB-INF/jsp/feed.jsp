@@ -62,7 +62,7 @@
                 </button>
             </form>
 
-            <form action="${pageContext.request.contextPath}/multipleDeleteNote" method="post" style="width: 60%; display: flex; flex-flow: row wrap; align-items: center; flex-basis: 100%; justify-content: space-evenly;">
+            <form action="${pageContext.request.contextPath}/deleteNote" method="post" style="width: 60%; display: flex; flex-flow: row wrap; align-items: center; flex-basis: 100%; justify-content: space-evenly;">
                 <c:forEach var="c" items="${notes}">
                     <a href="${pageContext.request.contextPath}/detailNote?id=${c.noteid}" style="text-decoration: none; color: white; margin: 25px 35px;">
                         <c:choose>
@@ -74,7 +74,7 @@
                                 </c:otherwise>
                                 </c:choose>
                                 <div class="form-check checkbox" id="checkbox" style="display: none;">
-                                    <input class="form-check-input" type="checkbox" value="${c.noteid}" name="multipleDelete" id="multipleDelete">
+                                    <input class="form-check-input" type="checkbox" value="${c.noteid}" name="notesToDelete" id="multipleDelete">
                                 </div>
                                 <div class="card-body" style="padding: 1rem;">
                                     <div style="position: relative; top: 0; width: 100%;">
@@ -102,7 +102,6 @@
                     </a>
                 </c:forEach>
                 <input type="hidden" name="_csrftoken" value="${csrfToken}">
-                <input type="hidden" name="idArray" id="idArray" value="">
                 <button type="button" id="button" class="btn btn-danger" style="position: absolute; left: 10%; top: 410px;">Multiple delete</button>
                 <button type="button" class="btn btn-secondary" id="cancelButton" style="display: none; position: absolute; left: 10%; top: 460px;">Cancel</button>
                 <!-- Modal -->
@@ -128,7 +127,7 @@
             </form>
 
             <script>
-                let checkboxes = document.querySelectorAll("input[type=checkbox][name=multipleDelete]");
+                let checkboxes = document.querySelectorAll("input[type=checkbox][name=notesToDelete]");
                 let enabledIDS = [];
 
                 checkboxes.forEach(function(checkbox) {
@@ -137,9 +136,7 @@
                             Array.from(checkboxes) // Convert checkboxes to an array to use filter and map.
                                 .filter(i => i.checked) // Use Array.filter to remove unchecked checkboxes.
                                 .map(i => i.value) // Use Array.map to extract only the checkbox values from the array of objects.
-
-                        document.querySelector('#idArray').value = enabledIDS;
-                    })
+                    });
                 });
 
                 document.querySelector('#button').addEventListener('click', function() {

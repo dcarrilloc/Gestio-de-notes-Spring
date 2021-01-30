@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpSession;
+import java.util.Arrays;
 
 @Controller
 public class NoteController {
@@ -36,9 +37,9 @@ public class NoteController {
     }
 
     @PostMapping("/deleteNote")
-    public String deleteNote(@RequestParam(name = "noteid") Long noteid){
+    public String deleteNote(@RequestParam(name = "notesToDelete") Long[] noteList){
         Long userid = (Long) session.getAttribute("userid");
-        noteService.deleteNote(userid, noteid);
+        noteService.deleteNote(userid, noteList);
         return "redirect:/feed";
     }
 }
