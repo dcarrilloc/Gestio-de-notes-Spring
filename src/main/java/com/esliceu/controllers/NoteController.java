@@ -4,12 +4,10 @@ import com.esliceu.services.NoteServiceImpl;
 import com.esliceu.services.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpSession;
-import java.util.Arrays;
 
 @Controller
 public class NoteController {
@@ -40,6 +38,20 @@ public class NoteController {
     public String deleteNote(@RequestParam(name = "notesToDelete") Long[] noteList){
         Long userid = (Long) session.getAttribute("userid");
         noteService.deleteNote(userid, noteList);
+        return "redirect:/feed";
+    }
+
+    @PostMapping("/shareNote")
+    public String shareNote(@RequestParam(name = "option") String user, @RequestParam(name = "noteid") Long noteid){
+        Long ownerid = (Long) session.getAttribute("userid");
+        noteService.shareNote(user, noteid, ownerid);
+        return "redirect:/feed";
+    }
+
+    @PostMapping("/deleteUserFromSharedNote")
+    public String deleteUserFromSharedNote(@RequestParam(name = "userid") Long userid, @RequestParam(name = "noteid") Long noteid){
+        Long ownerid = (Long) session.getAttribute("userid");
+        noteService.deleteUserFromSharedNote(noteid, ownerid, userid);
         return "redirect:/feed";
     }
 }

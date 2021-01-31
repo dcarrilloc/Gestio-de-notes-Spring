@@ -13,7 +13,7 @@
     <div class="collapse navbar-collapse" id="navbarText">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-                <a class="nav-link" href="${pageContext.request.contextPath}/profile?u=${username}">@${username}</a>
+                <a class="nav-link" href="${pageContext.request.contextPath}/profile">@${username}</a>
             </li>
             <li class="nav-item">
                 <form action="${pageContext.request.contextPath}/logout" method="post" style="position: relative; top: 7px;">

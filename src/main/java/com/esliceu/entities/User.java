@@ -1,8 +1,10 @@
 package com.esliceu.entities;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 @Table(name = "User",
         uniqueConstraints = { @UniqueConstraint( columnNames = { "email", "auth" } ) } )
@@ -11,6 +13,8 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userid;
+
+    @Column(unique = true)
     private String username;
     private String email;
     private String auth;
@@ -19,7 +23,18 @@ public class User {
 
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = true)
-    private List<Note> notes = new ArrayList<>();
+    private Set<Note> notes;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    private Set<Shared_Note> sharedNotes;
+
+    public Set<Shared_Note> getSharedNotes() {
+        return sharedNotes;
+    }
+
+    public void setSharedNotes(Set<Shared_Note> sharedNotes) {
+        this.sharedNotes = sharedNotes;
+    }
 
     public Long getUserid() {
         return userid;
@@ -53,11 +68,11 @@ public class User {
         this.password = password;
     }
 
-    public List<Note> getNotes() {
+    public Set<Note> getNotes() {
         return notes;
     }
 
-    public void setNotes(List<Note> notes) {
+    public void setNotes(Set<Note> notes) {
         this.notes = notes;
     }
 

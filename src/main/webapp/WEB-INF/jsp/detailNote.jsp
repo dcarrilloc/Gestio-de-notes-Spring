@@ -20,7 +20,7 @@
 
 <c:choose>
     <c:when test="${not empty note}">
-        <div style="width: 40%; margin: 200px auto;">
+        <div style="width: 40%; margin: 100px auto;">
             <c:set var="isowner" value="${ownership}"/>
             <c:if test="${isowner == false}">
                 <fieldset disabled>
@@ -44,17 +44,14 @@
                 <c:if test="${isowner == false}">
                     <fieldset disabled>
                 </c:if>
-                <div class="input-group mb-3" style="margin-bottom: 0 !important; margin-right: 20px;">
+
+                <div class="input-group mr-3">
                     <div class="input-group-prepend">
-                        <label class="input-group-text" for="inputGroupSelect01">Share with</label>
+                        <span class="input-group-text" id="basic-addon1">@</span>
                     </div>
-                    <select class="custom-select" id="inputGroupSelect01" name="option">
-                        <option selected>Choose...</option>
-                        <c:forEach var="c" items="${users}">
-                            <option value="${c}">${c}</option>
-                        </c:forEach>
-                    </select>
+                    <input type="text" class="form-control" name="option" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
                 </div>
+
                 <input type="hidden" name="noteid" value="${note.noteid}">
                 <input type="hidden" name="_csrftoken" value="${csrfToken}">
                 <button type="submit" class="btn btn-primary my-1">Share</button>
@@ -71,7 +68,7 @@
                     <p style="margin-right: 10px;">Shared with: </p>
                     <c:forEach var="c" items="${usersShared}">
                         <form action="/deleteUserFromSharedNote" method="POST" style="display: flex; flex-flow: row wrap; align-items: center; padding: 5px; background-color: #424242 !important; align-self: center; vertical-align: middle; border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 10px; margin-right: 10px;">
-                            <input type="hidden" name="username" value="${c.username}">
+                            <input type="hidden" name="userid" value="${c.userid}">
                             <input type="hidden" name="noteid" value="${note.noteid}">
                             <input type="hidden" name="_csrftoken" value="${csrfToken}">
                             <p style="margin: auto 7px;">@${c.username}</p>

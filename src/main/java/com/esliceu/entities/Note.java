@@ -1,7 +1,12 @@
 package com.esliceu.entities;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.Type;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity(name="Note")
 public class Note {
@@ -9,6 +14,8 @@ public class Note {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long noteid;
     private String title;
+
+    @Type(type="text")
     private String body;
     private LocalDateTime creationDate;
     private LocalDateTime lastModDate;
@@ -16,6 +23,19 @@ public class Note {
     @ManyToOne(optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User owner;
+
+    @OneToMany(mappedBy = "note", fetch = FetchType.EAGER)
+    private Set<Shared_Note> sharedNotes;
+
+
+
+    public Set<Shared_Note> getSharedNotes() {
+        return sharedNotes;
+    }
+
+    public void setSharedNotes(Set<Shared_Note> sharedNotes) {
+        this.sharedNotes = sharedNotes;
+    }
 
     public Long getNoteid() {
         return noteid;

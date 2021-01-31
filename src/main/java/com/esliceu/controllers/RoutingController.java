@@ -8,7 +8,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpSession;
 
 @Controller
@@ -49,18 +48,22 @@ public class RoutingController {
         Long sessionUserId = (Long) session.getAttribute("userid");
         model.addAttribute("username", userService.getUserById(sessionUserId).getUsername());
 
-        if(id != null) {
-            if(noteService.checkNoteOwnership(sessionUserId, id)) {
-                // If user owns the note can edit
-                model.addAttribute("ownership", true);
-                // req.setAttribute("usersShared", noteService.getSharedUsersFromNote(loggedUserId, noteid));
+        if(noteService.checkNoteOwnership(sessionUserId, id)) {
+            // If user owns the note can edit
+            model.addAttribute("ownership", true);
+            model.addAttribute("usersShared", noteService.getSharedUsersFromNote(sessionUserId, id));
+        } else {
+            // If user not owns the note cannot edit, just see (if it's shared).
+            // Checking if note is shared with the user.
+            if(noteService.checkNoteIsSharedByUserId(sessionUserId, id)) {
+                // Note shared with user
+                model.addAttribute("ownership", false);
             } else {
-                // If user not owns the note cannot edit, just see (if it's shared).
-                // Checking if note is shared with the user.
-
+                // Note NOT shared with user
+                return "redirect:/feed";
             }
-            model.addAttribute("note", noteService.getParsedNote(id, true));
         }
+        model.addAttribute("note", noteService.getParsedNote(id, true));
 
         return "detailNote";
     }
@@ -77,5 +80,13 @@ public class RoutingController {
         }
 
         return "redirect:/detailNote?id=" + id;
+    }
+
+    @GetMapping("/profile")
+    public String userProfile(Model model) {
+        Long sessionUserId = (Long) session.getAttribute("userid");
+
+        model.addAttribute("user", userService.getUserById(sessionUserId));
+        return "userProfile";
     }
 }

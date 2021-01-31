@@ -16,7 +16,7 @@
 <body style="margin: 0; padding: 0; box-sizing: border-box; width: 100%; background-color: #303030; color: white;">
 <jsp:include page="header.jsp" />
 
-<div style="width: 40%; margin: 200px auto;">
+<div style="width: 40%; margin: 100px auto;">
     <form action="${pageContext.request.contextPath}/saveNote" method="POST">
         <div style="background-color: #424242 !important; border-radius: 5px;">
             <div class="form-group" style="height: 50px; padding: 1rem 2rem 0 2rem;">
