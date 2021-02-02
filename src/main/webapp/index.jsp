@@ -62,7 +62,10 @@
             text-align: center;
             flex-basis: 100%;
             border-radius: 3px;
-            width: 300px;
+        }
+
+        .fb-login-button {
+            margin-top: 10px;
         }
 
         .native-wrapper {
@@ -141,10 +144,6 @@
             margin: auto;
         }
 
-        .google-btn:hover {
-            box-shadow: 0 0 6px #fff;
-        }
-
         .google-btn:active {
             background: #fff;
         }
@@ -152,6 +151,42 @@
     </style>
 </head>
 <body>
+
+<script>
+    window.fbAsyncInit = function () {
+        FB.init({
+            appId: '1397628140595505',
+            cookie: true,
+            xfbml: true,
+            version: 'v9.0'
+        });
+
+        FB.AppEvents.logPageView();
+        FB.getLoginStatus(function(response){
+            if(response.session){
+                top.location.href="http://localhost:8080/facebookLogin";
+            }
+            else{
+                top.location.href="https://www.facebook.com/dialog/oauth?client_id=1397628140595505&redirect_uri=http://localhost:8080/auth/oauth2facebookcallback/&scope=email";
+            }
+        })
+    };
+
+    (function (d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {
+            return;
+        }
+        js = d.createElement(s);
+        js.id = id;
+        js.src = "https://connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+</script>
+<div id="fb-root"></div>
+<script async defer crossorigin="anonymous"
+        src="https://connect.facebook.net/es_ES/sdk.js#xfbml=1&autoLogAppEvents=1&version=v9.0&appId=1397628140595505"
+        nonce="rhL1wNuT"></script>
 <div class="boddy-wrapper">
     <div class="h-wrapper">
         <h1>Note Manager</h1>
@@ -170,6 +205,9 @@
                 <p class="btn-text"><b>Continue with google</b></p>
             </div>
         </a>
+
+        <div class="fb-login-button" data-width="" data-size="large" data-button-type="continue_with"
+             data-layout="default" data-auto-logout-link="false" data-use-continue-as="true"></div>
 
 
         <!--div class="twitter-wrapper auth-wrapper"></div-->
