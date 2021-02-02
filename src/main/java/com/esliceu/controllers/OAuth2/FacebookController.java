@@ -4,8 +4,11 @@ import com.esliceu.services.NoteServiceImpl;
 import com.esliceu.services.FacebookOAuth2Service;
 import com.esliceu.services.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpSession;
 
@@ -24,34 +27,23 @@ public class FacebookController {
     @Autowired
     FacebookOAuth2Service facebookOAuth2Service;
 
+    @Value("${facebook-uri}")
+    String redirecturi;
+
     @GetMapping("/facebookLogin")
-    public String facebookLogin() throws Exception  {
-        //String resp = facebookOAuth2Service.getRequestToken();
-        //System.out.println("Response in controller: " + resp);
-        //return "redirect:/login";
-        return "";
+    public String facebookLogin(Model model) throws Exception  {
+        System.out.println("facebooklogin controller");
+        model.addAttribute("url", redirecturi);
+        return "facebookPopup";
     }
 
     @GetMapping("/auth/oauth2facebookcallback/")
-    public String oauth2facebookcallback() throws Exception {
+    public String oauth2facebookcallback(@RequestParam String code) throws Exception {
         System.out.println("En oauth2facebookcallback!!");
-        /*
+        System.out.println("Code: " + code);
 
-        String accessToken = googleOAuth2Service.getAccessToken(code);
-        Map<String,String> userDetails = googleOAuth2Service.getUserDetails(accessToken);
-
-        // Check if user is logged. If not, register user...
-        Long userid = userService.checkIfUserIsLogged(userDetails.get("email"), "GOOGLE");
-        if(userid != null) {
-            session.setAttribute("userid", userid);
-        } else {
-            Long id = userService.oAuth2Register(userDetails.get("email"), "GOOGLE");
-            session.setAttribute("userid", id);
-        }
-
-        return "redirect:/feed";
-
-         */
         return "login";
     }
 }
+
+

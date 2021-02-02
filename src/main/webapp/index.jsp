@@ -164,10 +164,10 @@
         FB.AppEvents.logPageView();
         FB.getLoginStatus(function(response){
             if(response.session){
-                top.location.href="http://localhost:8080/facebookLogin";
+                //top.location.href="http://localhost:8080/feed";
             }
             else{
-                top.location.href="https://www.facebook.com/dialog/oauth?client_id=1397628140595505&redirect_uri=http://localhost:8080/auth/oauth2facebookcallback/&scope=email";
+                //top.location.href="http://localhost:8080/facebookLogin";
             }
         })
     };
@@ -206,11 +206,7 @@
             </div>
         </a>
 
-        <div class="fb-login-button" data-width="" data-size="large" data-button-type="continue_with"
-             data-layout="default" data-auto-logout-link="false" data-use-continue-as="true"></div>
-
-
-        <!--div class="twitter-wrapper auth-wrapper"></div-->
+        <a href="${pageContext.request.contextPath}/facebookLogin">Facebook</a>
 
         <div class="native-wrapper">
             <a href="/register" class="register-wrapper auth-wrapper">Register</a>
