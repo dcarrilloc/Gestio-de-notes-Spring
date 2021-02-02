@@ -87,7 +87,7 @@
                                     </div>
                                     <div style="position: absolute; bottom: 0; font-size: small;">
                                         <c:choose>
-                                            <c:when test="${username.equals(c.getOwner().username)}">
+                                            <c:when test="${username.equals(c.getOwner().username) || username.equals(c.getOwner().email)}">
                                                 <p class="font-weight-light font-italic" style="margin-bottom: 5px;">Owner: me</p>
                                             </c:when>
                                             <c:otherwise>

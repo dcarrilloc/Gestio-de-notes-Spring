@@ -20,7 +20,7 @@ public class SessionInterceptor implements HandlerInterceptor {
 
         if (userid == null) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.sendRedirect("/login");
+            response.sendRedirect("/");
             return false;
         }
 

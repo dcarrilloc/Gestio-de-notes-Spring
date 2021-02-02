@@ -16,6 +16,8 @@ public class Shared_Note {
     @MapsId("userid")
     private User user;
 
+    private String permissionMode;
+
     private LocalDateTime sharedDate;
 
     public Shared_NoteCK getId() {
@@ -48,6 +50,14 @@ public class Shared_Note {
 
     public void setSharedDate(LocalDateTime sharedDate) {
         this.sharedDate = sharedDate;
+    }
+
+    public String getPermissionMode() {
+        return permissionMode;
+    }
+
+    public void setPermissionMode(String permissionMode) {
+        this.permissionMode = permissionMode;
     }
 
     @Override

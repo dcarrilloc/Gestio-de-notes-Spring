@@ -96,9 +96,7 @@ public class NoteServiceImpl implements NoteService {
         Optional<User> optionalUser = userRepo.findById(userid);
         if(optionalUser.isPresent()) {
             User user = optionalUser.get();
-            System.out.println("Feed notes empesado");
             List<Note> feedNotes = noteRepo.getFeedNotesByUser(user.getUserid());
-            System.out.println("Feed notes acabado");
             return feedNotes;
         }
         return new ArrayList<>();
@@ -140,24 +138,47 @@ public class NoteServiceImpl implements NoteService {
         return renderedNote;
     }
 
-    public void shareNote(String username, Long noteid, Long ownerid) {
+    public void shareNote(String username, Long noteid, Long userid, String permissionMode) {
         Optional<Note> optionalNote = noteRepo.findById(noteid);
-        Optional<User> optionalOwner = userRepo.findById(ownerid);
+        Optional<User> optionalUser = userRepo.findById(userid);
         User user = userRepo.findByUsername(username);
 
-        if (optionalNote.isPresent() && optionalOwner.isPresent() && user != null) {
+        if (optionalNote.isPresent() && optionalUser.isPresent() && user != null) {
             Note note = optionalNote.get();
-            User owner = optionalOwner.get();
-            if (checkNoteOwnership(owner.getUserid(), note.getNoteid())) {
+            User user1 = optionalUser.get();
+            if (checkEditorPermission(note, user1) || checkNoteOwnership(user1.getUserid(), note.getNoteid())) {
                 Shared_Note shared_note = new Shared_Note();
                 shared_note.setId(new Shared_NoteCK(note.getNoteid(), user.getUserid()));
                 shared_note.setNote(note);
                 shared_note.setUser(user);
                 shared_note.setSharedDate(LocalDateTime.now());
+                shared_note.setPermissionMode(permissionMode);
+
+                System.out.println(shared_note.toString());
 
                 shared_noteRepo.save(shared_note);
             }
         }
+    }
+
+    public String checkPermission(Long userid, Long noteid) {
+        Optional<Note> optionalNote = noteRepo.findById(noteid);
+        Optional<User> optionalUser = userRepo.findById(userid);
+
+        if(optionalUser.isPresent() && optionalNote.isPresent()) {
+            Note note = optionalNote.get();
+            User user = optionalUser.get();
+            Optional<Shared_Note> optionalShared_note = shared_noteRepo.findByNoteAndUser(note, user);
+            if(optionalShared_note.isPresent()) {
+                return optionalShared_note.get().getPermissionMode();
+            }
+        }
+        return "";
+    }
+
+    public boolean checkEditorPermission(Note note, User user) {
+        Optional<Shared_Note> optionalShared_note = shared_noteRepo.findByNoteAndUser(note, user);
+        return optionalShared_note.map(shared_note -> shared_note.getPermissionMode().equals("EDITOR")).orElse(false);
     }
 
     public List<User> getSharedUsersFromNote(Long sessionUserId, Long noteid) {

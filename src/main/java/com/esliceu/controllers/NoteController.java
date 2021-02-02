@@ -42,9 +42,13 @@ public class NoteController {
     }
 
     @PostMapping("/shareNote")
-    public String shareNote(@RequestParam(name = "option") String user, @RequestParam(name = "noteid") Long noteid){
+    public String shareNote(@RequestParam(name = "option") String user, @RequestParam(name = "noteid") Long noteid, @RequestParam(name = "permissionMode") String permissionMode){
         Long ownerid = (Long) session.getAttribute("userid");
-        noteService.shareNote(user, noteid, ownerid);
+
+        // Checking correct permission mode...
+        if(permissionMode.equals("EDITOR") || permissionMode.equals("VIEW")) {
+            noteService.shareNote(user, noteid, ownerid, permissionMode);
+        }
         return "redirect:/feed";
     }
 

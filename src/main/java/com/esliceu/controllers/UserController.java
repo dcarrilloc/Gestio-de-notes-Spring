@@ -43,13 +43,12 @@ public class UserController {
     public String userregister(Model model,@RequestParam(name = "username") String username,
                             @RequestParam(name = "email") String email,
                             @RequestParam(name = "password1") String password1,
-                            @RequestParam(name = "password2") String password2,
-                            @RequestParam(name = "_csrftoken") String csrftoken){
+                            @RequestParam(name = "password2") String password2){
 
         /* FORM VALIDATION */
 
         if(password1.equals(password2)) {
-            userService.userRegister(username, email, "NATIVE", password1);
+            userService.nativeRegister(username, email, "NATIVE", password1);
             User user = userService.getUserByEmailAndAuthAndPassword(email, "NATIVE", password1);
             session.setAttribute("userid", user.getUserid());
             return "redirect:/feed";

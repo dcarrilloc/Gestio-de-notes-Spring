@@ -22,7 +22,10 @@
     <c:when test="${not empty note}">
         <div style="width: 40%; margin: 100px auto;">
             <c:set var="isowner" value="${ownership}"/>
-            <c:if test="${isowner == false}">
+            <c:set var="iseditor" value="${permissionMode == 'EDITOR'}"/>
+            <c:set var="isviewer" value="${permissionMode == 'VIEW'}"/>
+
+            <c:if test="${isviewer == true}">
                 <fieldset disabled>
             </c:if>
                 <a href="${pageContext.request.contextPath}/edit?id=${note.noteid}" style="cursor: pointer; text-decoration: none; color: white;">
@@ -35,31 +38,41 @@
                         </div>
                     </div>
                 </a>
-            <c:if test="${isowner == false}">
+            <c:if test="${isviewer == true}">
                 <small style="margin-bottom: 15px;" id="emailHelp" class="form-text text-muted">You are not owner so you can't edit or share this note. If you don't want to see this note you can delete it from your feed.</small>
                 </fieldset>
             </c:if>
 
             <form class="form-inline" action="${pageContext.request.contextPath}/shareNote" method="POST" style="display: flex; flex-flow: row wrap; width: 100%;">
-                <c:if test="${isowner == false}">
+                <c:if test="${isviewer == true}">
                     <fieldset disabled>
                 </c:if>
 
-                <div class="input-group mr-3">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="basic-addon1">@</span>
+                    <div class="input-group mr-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">@</span>
+                        </div>
+                        <input type="text" class="form-control" name="option" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
                     </div>
-                    <input type="text" class="form-control" name="option" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
-                </div>
+
+                    <div class="input-group mr-3">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="inputGroupSelect01">Permission mode</label>
+                        </div>
+                        <select class="custom-select" id="inputGroupSelect01" name="permissionMode">
+                            <option value="VIEW" selected>View</option>
+                            <option value="EDITOR">Editor</option>
+                        </select>
+                    </div>
 
                 <input type="hidden" name="noteid" value="${note.noteid}">
                 <input type="hidden" name="_csrftoken" value="${csrfToken}">
                 <button type="submit" class="btn btn-primary my-1">Share</button>
-                <c:if test="${isowner == false}">
+                <c:if test="${isviewer == true}">
                     </fieldset>
                 </c:if>
             </form>
-            <c:if test="${isowner == false}">
+            <c:if test="${isviewer == true}">
                 </fieldset>
             </c:if>
 
@@ -105,7 +118,7 @@
                                 </button>
                             </div>
                             <c:choose>
-                                <c:when test="${isowner == false}">
+                                <c:when test="${isviewer == true}">
                                     <div class="modal-body" style="color: black;">
                                         You will not see this note.
                                     </div>
@@ -119,7 +132,7 @@
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                 <c:choose>
-                                    <c:when test="${isowner == false}">
+                                    <c:when test="${isviewer == true}">
                                         <button type="submit" class="btn btn-danger">Delete</button>
                                     </c:when>
                                     <c:otherwise>
