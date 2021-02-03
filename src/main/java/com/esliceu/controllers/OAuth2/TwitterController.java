@@ -12,6 +12,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpSession;
+import java.net.URI;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class TwitterController {
@@ -28,23 +32,28 @@ public class TwitterController {
     @Autowired
     TwitterOAuth2Service twitterOAuth2Service;
 
-
     @GetMapping("/twitterLogin")
-    public String twitterlogin(Model model) throws Exception  {
-        System.out.println("twitterlogin controller");
-        twitterOAuth2Service.getRequestToken();
-        return "login";
+    public String twitterlogin() throws Exception  {
+        URL url = twitterOAuth2Service.getRequestToken();
+        return "redirect:" + url;
     }
 
     @GetMapping("/auth/oauth2Twittercallback/")
-    public String oauth2twittercallback() throws Exception {
-        System.out.println("En oauth2twittercallback!!");
-        System.out.println("Code: ");
+    public String oauth2twittercallback(@RequestParam String oauth_token, @RequestParam String oauth_verifier) throws Exception {
+        HashMap userDetails = twitterOAuth2Service.getAccessToken(oauth_token, oauth_verifier);
 
-        return "login";
+        // Check if user is logged. If not, register user...
+        session.invalidate();
+        Long userid = userService.checkIfUserIsLogged((String) userDetails.get("email"), "TWITTER");
+        if(userid != null) {
+            session.setAttribute("userid", userid);
+        } else {
+            Long id = userService.oAuth2Register((String) userDetails.get("email"), "TWITTER");
+            session.setAttribute("userid", id);
+        }
+
+        return "redirect:/feed";
     }
-
-
 }
 
 

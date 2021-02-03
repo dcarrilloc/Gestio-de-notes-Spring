@@ -23,8 +23,8 @@ public class UserController {
     HttpSession session;
 
     @PostMapping("/login")
-    public String userlogin(Model model, @RequestParam(name = "email") String email, @RequestParam(name = "password") String password, @RequestParam(name = "_csrftoken") String csrftoken){
-
+    public String userlogin(Model model, @RequestParam(name = "email") String email, @RequestParam(name = "password") String password){
+        session.invalidate();
          /* FORM VALIDATION */
 
         User user = userService.getUserByEmailAndAuthAndPassword(email, "NATIVE", password);
@@ -62,6 +62,6 @@ public class UserController {
     @PostMapping("/logout")
     public String userlogout(){
         session.invalidate();
-        return "redirect:/login";
+        return "redirect:/";
     }
 }

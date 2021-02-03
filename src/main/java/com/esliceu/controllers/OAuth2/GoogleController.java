@@ -39,6 +39,7 @@ public class GoogleController {
         Map<String,String> userDetails = googleOAuth2Service.getUserDetails(accessToken);
 
         // Check if user is logged. If not, register user...
+        session.invalidate();
         Long userid = userService.checkIfUserIsLogged(userDetails.get("email"), "GOOGLE");
         if(userid != null) {
             session.setAttribute("userid", userid);

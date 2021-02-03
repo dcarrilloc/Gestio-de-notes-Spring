@@ -1,8 +1,7 @@
 package com.esliceu.services;
 
 import com.google.gson.Gson;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.http.HttpHeaders;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -16,12 +15,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
@@ -33,11 +32,11 @@ public class TwitterOAuth2ServiceImpl implements TwitterOAuth2Service {
     @Value("${twitter-callback-uri}")
     String redirecturi;
 
-    @Value("${twitter-api-key}")
-    String apiKey;
+    @Value("${twitter-consumer-key}")
+    String consumerKey;
 
-    @Value("${twitter-api-key-secret}")
-    String apiKeySecret;
+    @Value("${twitter-consumer-key-secret}")
+    String consumerKeySecret;
 
     @Value("${twitter-bearer-token}")
     String bearerToken;
@@ -53,7 +52,6 @@ public class TwitterOAuth2ServiceImpl implements TwitterOAuth2Service {
     /*
         TWITTER LOGIN FLOW
 
-
         1er paso: REQUEST TOKEN --> POST oauth/request_token
             - Devuelve oauth_token, oauth_token_secret, oauth_callback_confirmed
 
@@ -66,69 +64,134 @@ public class TwitterOAuth2ServiceImpl implements TwitterOAuth2Service {
         3r paso: convertir request_token a access_token. --> POST oauth/access_token
             - Devuelve oauth_token, oauth_token_secret
             - Con oauth_token y oauth_token_secret coger datos del usuario --> GET account/verify_credentials
-
-
      */
 
 
     @Override
-    public String getRequestToken() throws Exception {
+    public URL getRequestToken() throws Exception {
         URL url = new URL("https://api.twitter.com/oauth/request_token");
-        String oauth_signature = buildSignature("POST", url, "");
-        System.out.println("Signature: " + oauth_signature);
 
         Timestamp timestamp = new Timestamp(System.currentTimeMillis()/1000);
-
-        Map<String, String> parameters = new HashMap<>();
-
-        NavigableMap<String, String> authorization = new TreeMap<>();
-        authorization.put("oauth_callback", URLEncoder.encode(redirecturi, "UTF-8"));
-        authorization.put("oauth_consumer_key", apiKey);
-        authorization.put("oauth_nonce", generateNonce());
-        authorization.put("oauth_signature", oauth_signature);
-        authorization.put("oauth_signature_method", "HMAC-SHA1");
-        authorization.put("oauth_timestamp", String.valueOf(timestamp.getTime()));
-        authorization.put("oauth_version", "1.0");
-
-        String response = doPost(url, parameters, authorization, "OAuth ");
-        System.out.println("Response: " + response);
-        return "";
-    }
-
-    private String buildSignature(String method, URL url, String tokenSecret) throws MalformedURLException, UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis()/1000);
+        String nonce = generateNonce();
+        String timestampStr = String.valueOf(timestamp.getTime());
 
         NavigableMap<String, String> parameters = new TreeMap<>();
         parameters.put("oauth_callback", redirecturi);
-        parameters.put("oauth_consumer_key", apiKey);
-        parameters.put("oauth_nonce", generateNonce());
+        parameters.put("oauth_consumer_key", consumerKey);
+        parameters.put("oauth_nonce", nonce);
         parameters.put("oauth_signature_method", "HMAC-SHA1");
-        parameters.put("oauth_timestamp", String.valueOf(timestamp.getTime()));
+        parameters.put("oauth_timestamp", timestampStr);
         parameters.put("oauth_version", "1.0");
 
+        String oauth_signature = buildSignature(parameters, "POST", url, "");
+
+        NavigableMap<String, String> bodyParams = new TreeMap<>();
+
+        NavigableMap<String, String> authorization = new TreeMap<>();
+        authorization.put("oauth_callback", URLEncoder.encode(redirecturi, "UTF-8"));
+        authorization.put("oauth_consumer_key", consumerKey);
+        authorization.put("oauth_nonce", nonce);
+        authorization.put("oauth_signature", URLEncoder.encode(oauth_signature, "UTF-8"));
+        authorization.put("oauth_signature_method", "HMAC-SHA1");
+        authorization.put("oauth_timestamp", timestampStr);
+        authorization.put("oauth_version", "1.0");
+
+        String[] resp = doPost(url, bodyParams, authorization, "OAuth ").split("&");
+        return new URL("https://api.twitter.com/oauth/authorize?"+ resp[0]);
+    }
+
+    @Override
+    public HashMap getAccessToken(String oauth_token, String oauth_verifier) throws Exception {
+        URL url = new URL("https://api.twitter.com/oauth/access_token");
+
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis()/1000);
+        String nonce = generateNonce();
+        String timestampStr = String.valueOf(timestamp.getTime());
+
+        NavigableMap<String, String> parameters = new TreeMap<>();
+        parameters.put("oauth_consumer_key", consumerKey);
+        parameters.put("oauth_nonce", nonce);
+        parameters.put("oauth_signature_method", "HMAC-SHA1");
+        parameters.put("oauth_timestamp", timestampStr);
+        parameters.put("oauth_token", oauth_token);
+        parameters.put("oauth_version", "1.0");
+
+        String oauth_signature = buildSignature(parameters, "POST", url, "");
+
+        NavigableMap<String, String> bodyParams = new TreeMap<>();
+        bodyParams.put("oauth_verifier", oauth_verifier);
+
+        NavigableMap<String, String> authorization = new TreeMap<>();
+        authorization.put("oauth_consumer_key", consumerKey);
+        authorization.put("oauth_nonce", nonce);
+        authorization.put("oauth_signature", URLEncoder.encode(oauth_signature, "UTF-8"));
+        authorization.put("oauth_signature_method", "HMAC-SHA1");
+        authorization.put("oauth_timestamp", timestampStr);
+        authorization.put("oauth_token", oauth_token);
+        authorization.put("oauth_version", "1.0");
+
+        String[] resp = doPost(url, bodyParams, authorization, "OAuth ").split("&");
+        String oauth_token_resp = resp[0];
+        String oauth_token_secret_resp = resp[1];
+
+        return new Gson().fromJson(verify_credentials(oauth_token_resp.split("=")[1], oauth_token_secret_resp.split("=")[1]), HashMap.class);
+    }
+
+    private String verify_credentials(String oauth_token, String oauth_token_secret) throws Exception {
+        URL verify_credentials_URL = new URL("https://api.twitter.com/1.1/account/verify_credentials.json");
+        URL urlGet = new URL("https://api.twitter.com/1.1/account/verify_credentials.json?include_email=true");
+
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis()/1000);
+        String nonce = generateNonce();
+        String timestampStr = String.valueOf(timestamp.getTime());
+
+        NavigableMap<String, String> signature_params = new TreeMap<>();
+        signature_params.put("include_email", "true");
+        signature_params.put("oauth_consumer_key", consumerKey);
+        signature_params.put("oauth_nonce", nonce);
+        signature_params.put("oauth_signature_method", "HMAC-SHA1");
+        signature_params.put("oauth_timestamp", timestampStr);
+        signature_params.put("oauth_token", oauth_token);
+        signature_params.put("oauth_version", "1.0");
+
+        String signature = buildSignature(signature_params, "GET", verify_credentials_URL, oauth_token_secret);
+
+        NavigableMap<String, String> verify_credentials_authParams = new TreeMap<>();
+        verify_credentials_authParams.put("oauth_consumer_key", consumerKey);
+        verify_credentials_authParams.put("oauth_nonce", nonce);
+        verify_credentials_authParams.put("oauth_signature", URLEncoder.encode(signature, "UTF-8"));
+        verify_credentials_authParams.put("oauth_signature_method", "HMAC-SHA1");
+        verify_credentials_authParams.put("oauth_timestamp", timestampStr);
+        verify_credentials_authParams.put("oauth_token", oauth_token);
+        verify_credentials_authParams.put("oauth_version", "1.0");
+
+        return doGet(urlGet, verify_credentials_authParams, "OAuth ");
+    }
+
+    private String buildSignature(NavigableMap<String, String> params, String method, URL url, String tokenSecret) throws MalformedURLException, UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
         StringBuilder parameterString = new StringBuilder();
-        for (Map.Entry<String, String> entry : parameters.entrySet()) {
+        for (Map.Entry<String, String> entry : params.entrySet()) {
             parameterString.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
             parameterString.append("=");
             parameterString.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
-            if(!entry.getKey().equals(parameters.lastKey())) {
+            if(!entry.getKey().equals(params.lastKey())) {
                 parameterString.append("&");
             }
         }
 
-        StringBuilder signaturaBaseString = new StringBuilder();
-        signaturaBaseString.append(method);
-        signaturaBaseString.append("&");
-        signaturaBaseString.append(URLEncoder.encode(String.valueOf(url), "UTF-8"));
-        signaturaBaseString.append("&");
-        signaturaBaseString.append(URLEncoder.encode(String.valueOf(parameterString), "UTF-8"));
+        StringBuilder signatureBaseString = new StringBuilder();
+        signatureBaseString.append(method);
+        signatureBaseString.append("&");
+        signatureBaseString.append(URLEncoder.encode(String.valueOf(url), "UTF-8"));
+        signatureBaseString.append("&");
+        signatureBaseString.append(URLEncoder.encode(String.valueOf(parameterString), "UTF-8"));
 
         StringBuilder signingKeysb = new StringBuilder();
-        signingKeysb.append(URLEncoder.encode(apiKey, "UTF-8"));
+        signingKeysb.append(URLEncoder.encode(consumerKeySecret, "UTF-8"));
         signingKeysb.append("&");
         signingKeysb.append(URLEncoder.encode(tokenSecret, "UTF-8"));
 
-        return hmacSha1(String.valueOf(signaturaBaseString), String.valueOf(signingKeysb));
+        return computeSignature(String.valueOf(signatureBaseString), String.valueOf(signingKeysb));
     }
 
     private String generateNonce() {
@@ -142,66 +205,70 @@ public class TwitterOAuth2ServiceImpl implements TwitterOAuth2Service {
         return salt.toString();
     }
 
-    public static String hmacSha1(String value, String key) {
-        try {
-            // Get an hmac_sha1 key from the raw key bytes
-            byte[] keyBytes = key.getBytes();
-            SecretKeySpec signingKey = new SecretKeySpec(keyBytes, "HmacSHA1");
-
-            // Get an hmac_sha1 Mac instance and initialize with the signing key
-            Mac mac = Mac.getInstance("HmacSHA1");
-            mac.init(signingKey);
-
-            // Compute the hmac on input data bytes
-            byte[] rawHmac = mac.doFinal(value.getBytes());
-
-            // Convert raw bytes to Hex
-            byte[] hexBytes = new Hex().encode(rawHmac);
-
-            //  Covert array of Hex bytes to a String
-            return new String(hexBytes, StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public static String computeSignature(String baseString, String keyString) throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
+        SecretKey secretKey = null;
+        byte[] keyBytes = keyString.getBytes();
+        secretKey = new SecretKeySpec(keyBytes, "HmacSHA1");
+        Mac mac = Mac.getInstance("HmacSHA1");
+        mac.init(secretKey);
+        byte[] text = baseString.getBytes();
+        return new String(Base64.encodeBase64(mac.doFinal(text)));
     }
 
-    private String doPost(URL url, Map<String, String> parameters, NavigableMap<String, String> authorization, String authMethod) throws Exception {
+    private String doPost(URL url, NavigableMap<String, String> bodyParams, NavigableMap<String, String> authorizationParams, String authMethod) throws Exception {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPost post = new HttpPost(url.toString());
 
-        List<NameValuePair> nvps = new ArrayList<>();
-        for(String s: parameters.keySet()) {
-            nvps.add(new BasicNameValuePair(s, parameters.get(s)));
+        if(!bodyParams.isEmpty()) {
+            List<NameValuePair> nvps = new ArrayList<>();
+            for(String s: bodyParams.keySet()) {
+                nvps.add(new BasicNameValuePair(s, bodyParams.get(s)));
+            }
+            post.setEntity(new UrlEncodedFormEntity(nvps));
         }
-        post.setEntity(new UrlEncodedFormEntity(nvps));
 
         StringBuilder authorizationHeader = new StringBuilder();
         authorizationHeader.append(authMethod);
-        for (Map.Entry<String, String> entry : authorization.entrySet()) {
-            authorizationHeader.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+        for (Map.Entry<String, String> entry : authorizationParams.entrySet()) {
+            authorizationHeader.append(entry.getKey());
             authorizationHeader.append("=");
             authorizationHeader.append('"');
-            authorizationHeader.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+            authorizationHeader.append(entry.getValue());
             authorizationHeader.append('"');
-            if(!entry.getKey().equals(authorization.lastKey())) {
-                authorizationHeader.append(", ");
+            if(!entry.getKey().equals(authorizationParams.lastKey())) {
+                authorizationHeader.append(",");
             }
         }
 
-        System.out.println("Authorization Header: " + authorizationHeader);
-
-        post.setHeader(HttpHeaders.AUTHORIZATION, String.valueOf(authorizationHeader));
+        post.setHeader("Authorization", String.valueOf(authorizationHeader));
         CloseableHttpResponse response = httpClient.execute(post);
         response.getEntity();
         return EntityUtils.toString(response.getEntity());
     }
 
-    private String doGet(URL url) throws Exception {
+    private String doGet(URL url, NavigableMap<String, String> authorizationParams, String method) throws Exception {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpGet get = new HttpGet(url.toString());
+
+        StringBuilder authorizationHeader = new StringBuilder();
+        authorizationHeader.append(method);
+        for (Map.Entry<String, String> entry : authorizationParams.entrySet()) {
+            authorizationHeader.append(entry.getKey());
+            authorizationHeader.append("=");
+            authorizationHeader.append('"');
+            authorizationHeader.append(entry.getValue());
+            authorizationHeader.append('"');
+            if(!entry.getKey().equals(authorizationParams.lastKey())) {
+                authorizationHeader.append(",");
+            }
+        }
+
+        get.setHeader("Authorization", String.valueOf(authorizationHeader));
+
+        System.out.println("GET: " + Arrays.toString(get.getHeaders("Authorization")));
+
         CloseableHttpResponse response = httpClient.execute(get);
         response.getEntity();
         return EntityUtils.toString(response.getEntity());
     }
-
 }

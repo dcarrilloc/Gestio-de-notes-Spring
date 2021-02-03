@@ -27,12 +27,11 @@
             color: white;
             display: flex;
             flex-flow: column nowrap;
-            justify-content: center;
-            align-items: center;
         }
 
         .h-wrapper {
-            margin-bottom: 70px;
+            margin-top: 150px;
+            margin-bottom: 50px;
         }
 
         .h-wrapper > h1, .h-wrapper > h4 {
@@ -49,103 +48,46 @@
         }
 
         .signup-signin-wrapper {
-            background-color: #303030;
             display: flex;
             flex-flow: column nowrap;
+            margin: 0 auto;
             justify-content: center;
-            align-items: center;
-            padding: 15px;
+            padding: 30px;
+            background-color: #303030;
             border-radius: 3px;
-        }
-
-        .signup-signin-wrapper > * {
-            text-align: center;
-            flex-basis: 100%;
-            border-radius: 3px;
-        }
-
-        .fb-login-button {
-            margin-top: 10px;
+            width: 25%;
         }
 
         .native-wrapper {
-            display: flex;
-            flex-flow: row wrap;
             width: 100%;
-            margin-top: 10px;
-        }
-
-        .native-wrapper > a {
-            padding: 3px 5px;
-        }
-
-        .register-wrapper {
-            flex-basis: 48%;
-            margin-right: 2%;
-        }
-
-        .login-wrapper {
-            flex-basis: 48%;
-            margin-left: 2%;
-        }
-
-        .auth-wrapper {
-            border-radius: 3px;
-            background-color: #424242;
-            border: 1px solid white;
-        }
-
-        a {
-            text-decoration: none;
-            color: white;
-            height: 100%;
-            width: 100%;
-            cursor: pointer;
-        }
-
-        a:hover {
-            color: #ced4da;
-            text-decoration: none;
-        }
-
-        .google-btn {
             display: flex;
             flex-flow: row nowrap;
+            justify-content: space-evenly;
+        }
+
+        .auth-wrapper, .auth-wrapper:hover {
+            padding: 5px 14px;
+            text-decoration: none;
+            color: white;
+            background-color: #424242;
+            border-radius: 0.25rem;
+            border: solid 1px white;
+        }
+
+        .button {
+            background-color: white;
+            border-radius: .25rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .twitter {
+            color: white;
+            background-color: #1DA1F2;
+        }
+
+        .btn {
             width: 100%;
-            height: 35px;
-            background-color: #fff;
-            border-radius: 2px;
-            box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.25);
-            cursor: pointer;
-            padding: 1px;
-            color: black;
-        }
-
-        .google-btn .google-icon-wrapper {
-            position: relative;
-            width: 15%;
-            height: 100%;
-            border-radius: 2px;
-            background-color: #fff;
-        }
-
-        .google-btn .google-icon {
-            width: 23px;
-            position: absolute;
-            margin: auto;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
-        }
-
-        .google-btn .btn-text {
-            font-size: 1rem;
-            margin: auto;
-        }
-
-        .google-btn:active {
-            background: #fff;
         }
 
     </style>
@@ -194,20 +136,28 @@
     </div>
 
     <div class="signup-signin-wrapper">
-        <h6>Sign in to Note Manager</h6>
-
-        <a href="/googleLogin">
-            <div class="google-btn">
-                <div class="google-icon-wrapper">
-                    <img class="google-icon"
-                         src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"/>
-                </div>
-                <p class="btn-text"><b>Continue with google</b></p>
+        <h5 style="text-align: center; margin-bottom: 20px">Sign in to Note Manager</h5>
+        <div class="button google">
+            <div>
+                <a class="btn btn-outline-dark font-weight-bold" href="/googleLogin" role="button" style="text-transform:none">
+                    <img width="20px" style="margin-bottom:3px; margin-right:5px" alt="Google sign-in" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
+                    Continue with Google
+                </a>
             </div>
-        </a>
+        </div>
+
+        <div class="button twitter">
+            <div>
+                <a class="btn btn-outline-dark font-weight-bold" href="/twitterLogin" role="button" style="text-transform:none">
+                    <img width="20px" style="margin-bottom:3px; margin-right:5px" alt="Twitter sign-in" src="http://pngimg.com/uploads/twitter/twitter_PNG15.png" />
+                    Continue with Twitter
+                </a>
+            </div>
+        </div>
 
         <!--a href="${pageContext.request.contextPath}/facebookLogin">Facebook</a-->
 
+        <p style="margin: auto; text-align: center">or</p>
         <div class="native-wrapper">
             <a href="/register" class="register-wrapper auth-wrapper">Register</a>
             <a href="/login" class="login-wrapper auth-wrapper">Sign In</a>

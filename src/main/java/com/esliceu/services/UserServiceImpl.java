@@ -13,7 +13,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     UserRepo userRepo;
 
-
     public User getUserById(Long userid){
         Optional<User> u = userRepo.findById(userid);
         return u.orElse(null);
