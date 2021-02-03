@@ -152,7 +152,7 @@
 </head>
 <body>
 
-<script>
+<!--script>
     window.fbAsyncInit = function () {
         FB.init({
             appId: '1397628140595505',
@@ -164,10 +164,10 @@
         FB.AppEvents.logPageView();
         FB.getLoginStatus(function(response){
             if(response.session){
-                //top.location.href="http://localhost:8080/feed";
+                top.location.href="http://localhost:8080/feed";
             }
             else{
-                //top.location.href="http://localhost:8080/facebookLogin";
+                top.location.href="http://localhost:8080/facebookLogin";
             }
         })
     };
@@ -186,7 +186,7 @@
 <div id="fb-root"></div>
 <script async defer crossorigin="anonymous"
         src="https://connect.facebook.net/es_ES/sdk.js#xfbml=1&autoLogAppEvents=1&version=v9.0&appId=1397628140595505"
-        nonce="rhL1wNuT"></script>
+        nonce="rhL1wNuT"></script-->
 <div class="boddy-wrapper">
     <div class="h-wrapper">
         <h1>Note Manager</h1>
@@ -206,7 +206,7 @@
             </div>
         </a>
 
-        <a href="${pageContext.request.contextPath}/facebookLogin">Facebook</a>
+        <!--a href="${pageContext.request.contextPath}/facebookLogin">Facebook</a-->
 
         <div class="native-wrapper">
             <a href="/register" class="register-wrapper auth-wrapper">Register</a>

@@ -1,7 +1,8 @@
 package com.esliceu.controllers.OAuth2;
 
-import com.esliceu.services.NoteServiceImpl;
 import com.esliceu.services.FacebookOAuth2Service;
+import com.esliceu.services.NoteServiceImpl;
+import com.esliceu.services.TwitterOAuth2Service;
 import com.esliceu.services.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import javax.servlet.http.HttpSession;
 
 @Controller
-public class FacebookController {
+public class TwitterController {
 
     @Autowired
     NoteServiceImpl noteService;
@@ -25,30 +26,25 @@ public class FacebookController {
     HttpSession session;
 
     @Autowired
-    FacebookOAuth2Service facebookOAuth2Service;
+    TwitterOAuth2Service twitterOAuth2Service;
 
-    @Value("${facebook-uri}")
-    String redirecturi;
 
-    /*
-    @GetMapping("/facebookLogin")
-    public String facebookLogin(Model model) throws Exception  {
-        System.out.println("facebooklogin controller");
-        model.addAttribute("url", redirecturi);
-        //return "facebookPopup";
+    @GetMapping("/twitterLogin")
+    public String twitterlogin(Model model) throws Exception  {
+        System.out.println("twitterlogin controller");
+        twitterOAuth2Service.getRequestToken();
         return "login";
-    } */
+    }
 
-    /*
-    @GetMapping("/auth/oauth2facebookcallback/")
-    public String oauth2facebookcallback(@RequestParam String code) throws Exception {
-        System.out.println("En oauth2facebookcallback!!");
-        System.out.println("Code: " + code);
+    @GetMapping("/auth/oauth2Twittercallback/")
+    public String oauth2twittercallback() throws Exception {
+        System.out.println("En oauth2twittercallback!!");
+        System.out.println("Code: ");
 
         return "login";
     }
 
-     */
+
 }
 
 
