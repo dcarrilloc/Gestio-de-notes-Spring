@@ -84,7 +84,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public short checkRegisterCredentials(String username, String email, String password1, String password2) {
+    public short checkRegisterCredentials(String username, String email, String password1, String password2, String authMethod) {
         // Return codes:
         // 0: okay.
         // 1: invalid username.
@@ -97,19 +97,21 @@ public class UserServiceImpl implements UserService {
         String userPattern = "^[a-zA-Z0-9._-]{3,}$";
         boolean userValid = username.matches(userPattern);
 
-        // no whitespace allowed in the entire string and at least eight chars
-        String passPattern = "(?=\\S+$).{8,}";
-        boolean passValid = password1.matches(passPattern);
+        if(authMethod.equals("NATIVE")) {
+            // no whitespace allowed in the entire string and at least eight chars
+            String passPattern = "(?=\\S+$).{8,}";
+            boolean passValid = password1.matches(passPattern);
 
-        String emailPattern = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
-        boolean emailValid = email.matches(emailPattern);
+            String emailPattern = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+            boolean emailValid = email.matches(emailPattern);
+
+            if(!emailValid) return 2;
+            if(!passValid) return 3;
+            if(!password1.equals(password2)) return 4;
+            if(password1.equals(username)) return 5;
+        }
 
         if(!userValid) return 1;
-        if(!emailValid) return 2;
-        if(!passValid) return 3;
-        if(!password1.equals(password2)) return 4;
-        if(password1.equals(username)) return 5;
-
         return 0;
     }
 

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpSession;
+import java.security.NoSuchAlgorithmException;
 
 @Controller
 public class UserController {
@@ -70,7 +71,7 @@ public class UserController {
                           @RequestParam(name = "email", required = false) String email,
                           @RequestParam(name = "pass1", required = false) String pass1,
                           @RequestParam(name = "pass2", required = false) String pass2,
-                          Model model) {
+                          Model model) throws NoSuchAlgorithmException {
 
         Long sessionid = (Long) session.getAttribute("userid");
         User user = userService.getUserById(sessionid);
@@ -83,8 +84,12 @@ public class UserController {
             email = user.getEmail();
         }
 
+        String authMethod = user.getAuth();
+        model.addAttribute("authMethod", authMethod);
+        model.addAttribute("user", user);
+
         User existent = userService.getUserByUsername(username);
-        if(existent != null) {
+        if(existent != null && (!user.getUserid().equals(existent.getUserid()))) {
             model.addAttribute("status", 6);
             model.addAttribute("usernameValidation", "is-invalid");
             model.addAttribute("emailValidation", "is-valid");
@@ -92,8 +97,9 @@ public class UserController {
             return "userProfile";
         }
 
-        short code = userService.checkRegisterCredentials(username, email, pass1, pass2);
-        String authMethod = user.getAuth();
+
+        short code = userService.checkRegisterCredentials(username, email, pass1, pass2, authMethod);
+
         if (authMethod.equals("NATIVE")) {
             if (pass1 == null || pass2 == null) {
                 model.addAttribute("status", 8);
@@ -101,7 +107,7 @@ public class UserController {
                 model.addAttribute("emailValidation", "is-valid");
                 model.addAttribute("passwordValidation", "is-invalid");
                 return "userProfile";
-            } else if (pass1.equals(pass2)) {
+            } else if (!pass1.equals(pass2)) {
                 model.addAttribute("status", 4);
                 model.addAttribute("usernameValidation", "is-valid");
                 model.addAttribute("emailValidation", "is-valid");
