@@ -10,10 +10,12 @@ public class Shared_Note {
 
     @ManyToOne
     @MapsId("noteid")
+    @JoinColumn(name = "note_noteid")
     private Note note;
 
     @ManyToOne
     @MapsId("userid")
+    @JoinColumn(name = "user_userid")
     private User user;
 
     private String permissionMode;

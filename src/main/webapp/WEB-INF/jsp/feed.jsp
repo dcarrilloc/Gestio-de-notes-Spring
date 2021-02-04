@@ -48,10 +48,10 @@
                     <select class="custom-select" id="inputGroupSelect01" name="searchType" style="background-color: #424242 !important; color: white !important;">
                         <option value="title-asc"  ${inputType == 'title-asc'  ? 'selected' : ''}>By title - ASC</option>
                         <option value="title-desc" ${inputType == 'title-desc' ? 'selected' : ''}>By title - DESC</option>
-                        <option value="cdate-asc"  ${inputType == 'creationDate-asc'  ? 'selected' : ''}>By creation date - ASC</option>
-                        <option value="cdate-desc" ${inputType == 'creationDate-desc' ? 'selected' : ''}>By creation date - DESC</option>
-                        <option value="mdate-asc"  ${inputType == 'lastModDate-asc'  ? 'selected' : ''}>By modification date - ASC</option>
-                        <option value="mdate-desc" ${inputType == 'lastModDate-desc' ? 'selected' : ''}>By modification date - DESC</option>
+                        <option value="creationDate-asc"  ${inputType == 'creationDate-asc'  ? 'selected' : ''}>By creation date - ASC</option>
+                        <option value="creationDate-desc" ${inputType == 'creationDate-desc' ? 'selected' : ''}>By creation date - DESC</option>
+                        <option value="lastModDate-asc"  ${inputType == 'lastModDate-asc'  ? 'selected' : ''}>By modification date - ASC</option>
+                        <option value="lastModDate-desc" ${inputType == 'lastModDate-desc' ? 'selected' : ''}>By modification date - DESC</option>
                     </select>
                 </div>
                 <button type="submit" style="border-radius: 50%; background-color: transparent; border: none; outline:none; margin-bottom: 16px;">

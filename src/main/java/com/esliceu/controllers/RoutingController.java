@@ -47,7 +47,7 @@ public class RoutingController {
         if(pagination == null) {
             page = 0;
         } else {
-            page = pagination ;
+            page = --pagination ;
         }
 
         if(searchType == null) {
@@ -58,7 +58,7 @@ public class RoutingController {
         String order = searchType.split("-")[1];
 
         if(dates == null) {
-            dates = "01/01/1970 - 03/15/2021";
+            dates = "02/01/2021 - 02/28/2021";
         }
 
         // Transform String '11/01/2020 - 12/15/2020' into two Dates.
@@ -81,21 +81,26 @@ public class RoutingController {
         }
 
         int totalNotes = noteService.getFeedNotesByUser(sessionUserId, dateFrom, dateTo, searchValue).size();
-        int totalPages = (int) Math.ceil(totalNotes/10);
+        int totalPages = (int) Math.ceil((totalNotes - 1)/10);
 
-        System.out.println("\n\n\n");
-        System.out.println("dateFrom: " + dateFrom.toString());
-        System.out.println("dateTo: " + dateTo.toString());
-        System.out.println("searchValue: " + searchValue);
-        System.out.println("total notas: " + totalNotes);
-        System.out.println("total paginas: " + totalPages);
-        System.out.println("page: " + page);
-        System.out.println("column: " + column);
-        System.out.println("order: " + order);
-        System.out.println("\n\n\n");
+        model.addAttribute("inputValue", searchValue);
+        model.addAttribute("inputType", searchType);
+        model.addAttribute("dates", dates);
 
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("notes", noteService.getPagedNotes(sessionUserId, dateFrom, dateTo, searchValue, page, column, order));
+
+        if(page == 0) {
+            model.addAttribute("nextPage", 2);
+            model.addAttribute("previousPageAvailable", false);
+        } else if(page == (Integer) model.getAttribute("totalPages")) {
+            model.addAttribute("nextPageAvailable", false);
+        } else {
+            model.addAttribute("previousPage", page - 1);
+            model.addAttribute("nextPage", page + 1);
+            model.addAttribute("previousPageAvailable", true);
+            model.addAttribute("nextPageAvailable", true);
+        }
 
         String username = userService.getUserById(sessionUserId).getUsername();
         if(username.equals("")) {
@@ -162,8 +167,9 @@ public class RoutingController {
     @GetMapping("/profile")
     public String userProfile(Model model) {
         Long sessionUserId = (Long) session.getAttribute("userid");
-
+        String authMethod = userService.getUserById(sessionUserId).getAuth();
         model.addAttribute("user", userService.getUserById(sessionUserId));
+        model.addAttribute("authMethod", authMethod);
         return "userProfile";
     }
 }

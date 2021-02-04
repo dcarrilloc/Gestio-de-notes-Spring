@@ -71,64 +71,70 @@
                     </c:if>
                 </div>
             </div>
-            <div class="form-group row">
-                <label class="col-lg-3 col-form-label form-control-label">Email</label>
-                <div class="input-group col-lg-9">
-                    <input class="form-control ${emailValidation}" type="email" value="${user.email}" name="email">
-                    <c:if test = "${status == 2}">
-                        <div class="invalid-feedback">
-                            Please provide a valid email.
-                        </div>
-                    </c:if>
-                    <c:if test = "${status == 1 || status == 3 || status == 4 || status == 5 || status == 6}">
-                        <div class="valid-feedback">
-                            This looks good!
-                        </div>
-                    </c:if>
-                    <c:if test = "${status == 7}">
-                        <div class="invalid-feedback">
-                            You didn't changed anything!
-                        </div>
-                    </c:if>
+
+            <c:if test="${authMethod == 'NATIVE'}">
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label form-control-label">Email</label>
+                    <div class="input-group col-lg-9">
+                        <input class="form-control ${emailValidation}" type="email" value="${user.email}" name="email">
+                        <c:if test = "${status == 2}">
+                            <div class="invalid-feedback">
+                                Please provide a valid email.
+                            </div>
+                        </c:if>
+                        <c:if test = "${status == 1 || status == 3 || status == 4 || status == 5 || status == 6}">
+                            <div class="valid-feedback">
+                                This looks good!
+                            </div>
+                        </c:if>
+                        <c:if test = "${status == 7}">
+                            <div class="invalid-feedback">
+                                You didn't changed anything!
+                            </div>
+                        </c:if>
+                    </div>
                 </div>
-            </div>
-            <div class="form-group row">
-                <label class="col-lg-3 col-form-label form-control-label">Password</label>
-                <div class="input-group col-lg-9">
-                    <input class="form-control ${passwordValidation}" type="password" value="" name="pass1">
-                    <c:if test = "${status == 3}">
-                        <div class="invalid-feedback">
-                            Your password must be at least 8 characters long and must not contain blank spaces.
-                        </div>
-                    </c:if>
-                    <c:if test = "${status == 4}">
-                        <div class="invalid-feedback">
-                            Passwords does not match. Try again.
-                        </div>
-                    </c:if>
-                    <c:if test = "${status == 5}">
-                        <div class="invalid-feedback">
-                            Password must not be the same as the username.
-                        </div>
-                    </c:if>
-                    <c:if test = "${status == 7}">
-                        <div class="invalid-feedback">
-                            You didn't changed anything!
-                        </div>
-                    </c:if>
-                    <c:if test = "${status == 8}">
-                        <div class="invalid-feedback">
-                            You have to enter your password to confirm the changes!
-                        </div>
-                    </c:if>
+
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label form-control-label">Password</label>
+                    <div class="input-group col-lg-9">
+                        <input class="form-control ${passwordValidation}" type="password" value="" name="pass1">
+                        <c:if test = "${status == 3}">
+                            <div class="invalid-feedback">
+                                Your password must be at least 8 characters long and must not contain blank spaces.
+                            </div>
+                        </c:if>
+                        <c:if test = "${status == 4}">
+                            <div class="invalid-feedback">
+                                Passwords does not match. Try again.
+                            </div>
+                        </c:if>
+                        <c:if test = "${status == 5}">
+                            <div class="invalid-feedback">
+                                Password must not be the same as the username.
+                            </div>
+                        </c:if>
+                        <c:if test = "${status == 7}">
+                            <div class="invalid-feedback">
+                                You didn't changed anything!
+                            </div>
+                        </c:if>
+                        <c:if test = "${status == 8}">
+                            <div class="invalid-feedback">
+                                You have to enter your password to confirm the changes!
+                            </div>
+                        </c:if>
+                    </div>
                 </div>
-            </div>
-            <div class="form-group row">
-                <label class="col-lg-3 col-form-label form-control-label">Confirm password</label>
-                <div class="input-group col-lg-9">
-                    <input class="form-control" type="password" value="" name="pass2">
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label form-control-label">Confirm password</label>
+                    <div class="input-group col-lg-9">
+                        <input class="form-control" type="password" value="" name="pass2">
+                    </div>
                 </div>
-            </div>
+            </c:if>
+
+
             <div class="form-group row">
                 <label class="col-lg-3 col-form-label form-control-label"></label>
                 <div class="input-group col-lg-9">

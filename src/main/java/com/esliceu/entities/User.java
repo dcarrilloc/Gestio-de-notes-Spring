@@ -1,5 +1,8 @@
 package com.esliceu.entities;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 import java.util.Set;
 
@@ -18,11 +21,12 @@ public class User {
     private String password;
 
 
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = true)
+    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<Note> notes;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<Shared_Note> sharedNotes;
 
     public Set<Shared_Note> getSharedNotes() {

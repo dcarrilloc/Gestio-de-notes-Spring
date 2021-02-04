@@ -94,41 +94,6 @@
 </head>
 <body>
 
-<!--script>
-    window.fbAsyncInit = function () {
-        FB.init({
-            appId: '1397628140595505',
-            cookie: true,
-            xfbml: true,
-            version: 'v9.0'
-        });
-
-        FB.AppEvents.logPageView();
-        FB.getLoginStatus(function(response){
-            if(response.session){
-                top.location.href="http://localhost:8080/feed";
-            }
-            else{
-                top.location.href="http://localhost:8080/facebookLogin";
-            }
-        })
-    };
-
-    (function (d, s, id) {
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) {
-            return;
-        }
-        js = d.createElement(s);
-        js.id = id;
-        js.src = "https://connect.facebook.net/en_US/sdk.js";
-        fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));
-</script>
-<div id="fb-root"></div>
-<script async defer crossorigin="anonymous"
-        src="https://connect.facebook.net/es_ES/sdk.js#xfbml=1&autoLogAppEvents=1&version=v9.0&appId=1397628140595505"
-        nonce="rhL1wNuT"></script-->
 <div class="boddy-wrapper">
     <div class="h-wrapper">
         <h1>Note Manager</h1>

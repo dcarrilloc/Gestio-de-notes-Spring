@@ -64,4 +64,105 @@ public class UserController {
         session.invalidate();
         return "redirect:/";
     }
+
+    @PostMapping("/profile")
+    public String profile(@RequestParam(name = "username", required = false) String username,
+                          @RequestParam(name = "email", required = false) String email,
+                          @RequestParam(name = "pass1", required = false) String pass1,
+                          @RequestParam(name = "pass2", required = false) String pass2,
+                          Model model) {
+
+        Long sessionid = (Long) session.getAttribute("userid");
+        User user = userService.getUserById(sessionid);
+
+        if (username == null) {
+            username = user.getUsername();
+        }
+
+        if (email == null) {
+            email = user.getEmail();
+        }
+
+        User existent = userService.getUserByUsername(username);
+        if(existent != null) {
+            model.addAttribute("status", 6);
+            model.addAttribute("usernameValidation", "is-invalid");
+            model.addAttribute("emailValidation", "is-valid");
+            model.addAttribute("passwordValidation", "is-invalid");
+            return "userProfile";
+        }
+
+        short code = userService.checkRegisterCredentials(username, email, pass1, pass2);
+        String authMethod = user.getAuth();
+        if (authMethod.equals("NATIVE")) {
+            if (pass1 == null || pass2 == null) {
+                model.addAttribute("status", 8);
+                model.addAttribute("usernameValidation", "is-valid");
+                model.addAttribute("emailValidation", "is-valid");
+                model.addAttribute("passwordValidation", "is-invalid");
+                return "userProfile";
+            } else if (pass1.equals(pass2)) {
+                model.addAttribute("status", 4);
+                model.addAttribute("usernameValidation", "is-valid");
+                model.addAttribute("emailValidation", "is-valid");
+                model.addAttribute("passwordValidation", "is-invalid");
+                return "userProfile";
+            } else if (code == 3) {
+                model.addAttribute("status", 3);
+                model.addAttribute("usernameValidation", "is-valid");
+                model.addAttribute("emailValidation", "is-valid");
+                model.addAttribute("passwordValidation", "is-invalid");
+                return "userProfile";
+            } else if (code == 4) {
+                model.addAttribute("status", 4);
+                model.addAttribute("usernameValidation", "is-valid");
+                model.addAttribute("emailValidation", "is-valid");
+                model.addAttribute("passwordValidation", "is-invalid");
+                return "userProfile";
+            } else if (code == 5) {
+                model.addAttribute("status", 5);
+                model.addAttribute("usernameValidation", "is-valid");
+                model.addAttribute("emailValidation", "is-valid");
+                model.addAttribute("passwordValidation", "is-invalid");
+                return "userProfile";
+            }
+            userService.updateNativeUser(username, email, pass1, sessionid);
+        }
+
+        // pendiente de encriptacion de password
+        /*
+        if(username.equals(user.getUsername()) && email.equals(user.getEmail()) && pass.equals(user.getPassword())) {
+            model.addAttribute("status", 7);
+            model.addAttribute("usernameValidation", "is-invalid");
+            model.addAttribute("emailValidation", "is-invalid");
+            model.addAttribute("passwordValidation", "is-invalid");
+            return "userProfile";
+        }
+         */
+
+        userService.updateOAuthUser(username, sessionid);
+        return "redirect:/feed";
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
