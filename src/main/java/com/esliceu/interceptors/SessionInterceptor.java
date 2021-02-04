@@ -17,13 +17,11 @@ public class SessionInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         Long userid = (Long) session.getAttribute("userid");
-
         if (userid == null) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.sendRedirect("/");
             return false;
         }
-
         return true;
     }
 

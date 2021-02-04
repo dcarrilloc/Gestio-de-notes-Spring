@@ -1,5 +1,7 @@
 package com.esliceu.config;
 
+import com.esliceu.interceptors.CheckCSRFTokenInterceptor;
+import com.esliceu.interceptors.GenerateCSRFTokenInterceptor;
 import com.esliceu.interceptors.SessionInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +21,12 @@ public class AppConfig implements WebMvcConfigurer {
     @Autowired
     SessionInterceptor sessionInterceptor;
 
+    @Autowired
+    CheckCSRFTokenInterceptor checkCSRFTokenInterceptor;
+
+    @Autowired
+    GenerateCSRFTokenInterceptor generateCSRFTokenInterceptor;
+
     @Bean
     public UrlBasedViewResolver viewResolver() {
         UrlBasedViewResolver resolver = new UrlBasedViewResolver();
@@ -35,6 +43,12 @@ public class AppConfig implements WebMvcConfigurer {
                         "/deleteNote", "/deleteUserFromSharedNote",
                         "/editNote", "/logout", "/multipleDeleteNote",
                         "/md", "/shareNote", "/profile");
+
+        registry.addInterceptor(generateCSRFTokenInterceptor)
+                .addPathPatterns("/*");
+
+        registry.addInterceptor(checkCSRFTokenInterceptor)
+                .addPathPatterns("/*");
     }
 /*
     @Bean

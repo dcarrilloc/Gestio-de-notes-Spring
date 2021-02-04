@@ -2,13 +2,22 @@ package com.esliceu.controllers;
 
 import com.esliceu.services.NoteServiceImpl;
 import com.esliceu.services.UserServiceImpl;
+import com.esliceu.utils.exceptions.Note.NoteNotFound;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.servlet.http.HttpSession;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Controller
 public class RoutingController {
@@ -28,9 +37,65 @@ public class RoutingController {
     public String register() { return "register"; }
 
     @GetMapping("/feed")
-    public String feed(Model model) {
+    public String feed(Model model, @RequestParam(value = "page", required = false) Integer pagination,
+                       @RequestParam(value = "searchType", required = false) String searchType,
+                       @RequestParam(value = "searchValue", required = false) String searchValue,
+                       @RequestParam(value = "dates", required = false) String dates) {
         Long sessionUserId = (Long) session.getAttribute("userid");
-        model.addAttribute("notes", noteService.getFeedNotesByUser(sessionUserId));
+
+        int page;
+        if(pagination == null) {
+            page = 0;
+        } else {
+            page = pagination ;
+        }
+
+        if(searchType == null) {
+            searchType = "lastModDate-desc";
+        }
+
+        String column = searchType.split("-")[0];
+        String order = searchType.split("-")[1];
+
+        if(dates == null) {
+            dates = "01/01/1970 - 03/15/2021";
+        }
+
+        // Transform String '11/01/2020 - 12/15/2020' into two Dates.
+        String date1 = dates.substring(0, 10);
+        String date2 = dates.substring(13, 23);
+
+        //Change '/' to '-' in dates
+        String date1temp = date1.replace('/', '-');
+        String date2temp = date2.replace('/', '-');
+
+        System.out.println(date1temp);
+        System.out.println(date2temp);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
+        LocalDateTime dateFrom = LocalDate.parse(date1temp, formatter).atStartOfDay();
+        LocalDateTime dateTo = LocalDate.parse(date2temp, formatter).atStartOfDay();
+
+        if(searchValue == null) {
+            searchValue = "";
+        }
+
+        int totalNotes = noteService.getFeedNotesByUser(sessionUserId, dateFrom, dateTo, searchValue).size();
+        int totalPages = (int) Math.ceil(totalNotes/10);
+
+        System.out.println("\n\n\n");
+        System.out.println("dateFrom: " + dateFrom.toString());
+        System.out.println("dateTo: " + dateTo.toString());
+        System.out.println("searchValue: " + searchValue);
+        System.out.println("total notas: " + totalNotes);
+        System.out.println("total paginas: " + totalPages);
+        System.out.println("page: " + page);
+        System.out.println("column: " + column);
+        System.out.println("order: " + order);
+        System.out.println("\n\n\n");
+
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("notes", noteService.getPagedNotes(sessionUserId, dateFrom, dateTo, searchValue, page, column, order));
 
         String username = userService.getUserById(sessionUserId).getUsername();
         if(username.equals("")) {

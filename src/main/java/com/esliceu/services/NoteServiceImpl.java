@@ -12,9 +12,14 @@ import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.commonmark.renderer.text.TextContentRenderer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -92,12 +97,27 @@ public class NoteServiceImpl implements NoteService {
         });
     }
 
-    public List<Note> getFeedNotesByUser(Long userid) {
+    public List<Note> getFeedNotesByUser(Long userid, LocalDateTime dateFrom, LocalDateTime datoTo, String searchValue) {
         Optional<User> optionalUser = userRepo.findById(userid);
         if(optionalUser.isPresent()) {
             User user = optionalUser.get();
-            List<Note> feedNotes = noteRepo.getFeedNotesByUser(user.getUserid());
-            return feedNotes;
+            return noteRepo.getFeedNotesByUser(user.getUserid(), dateFrom, datoTo, searchValue);
+        }
+        return new ArrayList<>();
+    }
+
+    public List<Note> getPagedNotes(Long userid, LocalDateTime dateFrom, LocalDateTime datoTo, String searchValue, Integer page, String column, String order) {
+        Pageable pageable;
+        if(order.equals("asc")) {
+            pageable = PageRequest.of(page, 10, Sort.by(column).ascending());
+        } else {
+            pageable = PageRequest.of(page, 10, Sort.by(column).descending());
+        }
+
+        Optional<User> optionalUser = userRepo.findById(userid);
+        if(optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            return noteRepo.getPagedNotes(user.getUserid(), dateFrom, datoTo, searchValue, pageable);
         }
         return new ArrayList<>();
     }

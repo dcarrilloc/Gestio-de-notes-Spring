@@ -39,7 +39,7 @@
                     <input type="text" value="${inputValue}" name="searchValue" placeholder="Search" aria-label="Search" style="border: none; border-bottom: 2px solid #f5d742; background-color: #303030; color: white; border-radius: 0px;outline:none; width: 250px;">
                 </div>
                 <div style="margin: 0 20px 0 20px;">
-                    <input type="text" name="dates" value="${dates}" style="width: 105%; background-color: #424242; margin-bottom: 16px; color: white; border-radius: .25rem; height: calc(1.5em + .75rem + 2px); padding: .375rem .75rem .375rem .75rem; font-weight: 400; line-height: 1.5; vertical-align: middle; border: 1px solid #ced4da; text-align: center;">
+                    <input type="text" name="dates" value="${dates}" placeholder="01/01/1970 - 23/06/2021" style="width: 105%; background-color: #424242; margin-bottom: 16px; color: white; border-radius: .25rem; height: calc(1.5em + .75rem + 2px); padding: .375rem .75rem .375rem .75rem; font-weight: 400; line-height: 1.5; vertical-align: middle; border: 1px solid #ced4da; text-align: center;">
                     <script>
                         $('input[name="dates"]').daterangepicker();
                     </script>
@@ -48,10 +48,10 @@
                     <select class="custom-select" id="inputGroupSelect01" name="searchType" style="background-color: #424242 !important; color: white !important;">
                         <option value="title-asc"  ${inputType == 'title-asc'  ? 'selected' : ''}>By title - ASC</option>
                         <option value="title-desc" ${inputType == 'title-desc' ? 'selected' : ''}>By title - DESC</option>
-                        <option value="cdate-asc"  ${inputType == 'cdate-asc'  ? 'selected' : ''}>By creation date - ASC</option>
-                        <option value="cdate-desc" ${inputType == 'cdate-desc' ? 'selected' : ''}>By creation date - DESC</option>
-                        <option value="mdate-asc"  ${inputType == 'mdate-asc'  ? 'selected' : ''}>By modification date - ASC</option>
-                        <option value="mdate-desc" ${inputType == 'mdate-desc' ? 'selected' : ''}>By modification date - DESC</option>
+                        <option value="cdate-asc"  ${inputType == 'creationDate-asc'  ? 'selected' : ''}>By creation date - ASC</option>
+                        <option value="cdate-desc" ${inputType == 'creationDate-desc' ? 'selected' : ''}>By creation date - DESC</option>
+                        <option value="mdate-asc"  ${inputType == 'lastModDate-asc'  ? 'selected' : ''}>By modification date - ASC</option>
+                        <option value="mdate-desc" ${inputType == 'lastModDate-desc' ? 'selected' : ''}>By modification date - DESC</option>
                     </select>
                 </div>
                 <button type="submit" style="border-radius: 50%; background-color: transparent; border: none; outline:none; margin-bottom: 16px;">
