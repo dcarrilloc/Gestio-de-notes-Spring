@@ -20,14 +20,21 @@ public class Note {
     private LocalDateTime creationDate;
     private LocalDateTime lastModDate;
 
+
+    // Relació N-1 amb User
     @ManyToOne(optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User owner;
 
+    // Relació N-M amb User (Shared_Note)
     @OneToMany(mappedBy = "note", fetch = FetchType.EAGER)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<Shared_Note> sharedNotes;
 
-
+    // Relació 1-N amb Version
+    @OneToMany(mappedBy = "note", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Set<Version> versions;
 
     public Set<Shared_Note> getSharedNotes() {
         return sharedNotes;
@@ -83,6 +90,14 @@ public class Note {
 
     public void setOwner(User owner) {
         this.owner = owner;
+    }
+
+    public Set<Version> getVersions() {
+        return versions;
+    }
+
+    public void setVersions(Set<Version> versions) {
+        this.versions = versions;
     }
 
     @Override

@@ -178,4 +178,9 @@ public class UserServiceImpl implements UserService {
         }
         return bytes;
     }
+
+    public void deleteAccount(Long userid) {
+        Optional<User> user = userRepo.findById(userid);
+        user.ifPresent(value -> userRepo.delete(value));
+    }
 }

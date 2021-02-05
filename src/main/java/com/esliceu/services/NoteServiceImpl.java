@@ -1,12 +1,10 @@
 package com.esliceu.services;
 
-import com.esliceu.entities.Note;
-import com.esliceu.entities.Shared_Note;
-import com.esliceu.entities.Shared_NoteCK;
-import com.esliceu.entities.User;
+import com.esliceu.entities.*;
 import com.esliceu.repos.NoteRepo;
 import com.esliceu.repos.Shared_NoteRepo;
 import com.esliceu.repos.UserRepo;
+import com.esliceu.repos.VersionRepo;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -16,10 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +31,9 @@ public class NoteServiceImpl implements NoteService {
 
     @Autowired
     Shared_NoteRepo shared_noteRepo;
+
+    @Autowired
+    VersionRepo versionRepo;
 
 
     public Note getNoteById(Long noteid) {
@@ -72,7 +70,16 @@ public class NoteServiceImpl implements NoteService {
         n.setBody(body);
         n.setLastModDate(LocalDateTime.now());
 
+        Version v = new Version();
+        v.setTitle(title);
+        v.setBody(body);
+        v.setCreationDate(LocalDateTime.now());
+        v.setNote(n);
+        Optional<User> editor = userRepo.findById(userid);
+        editor.ifPresent(v::setUser);
+
         noteRepo.save(n);
+        versionRepo.save(v);
     }
 
     public void deleteNote(Long userid, Long[] noteid) {

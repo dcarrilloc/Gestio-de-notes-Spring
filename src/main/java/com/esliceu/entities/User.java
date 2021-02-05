@@ -20,14 +20,20 @@ public class User {
     private String auth;
     private String password;
 
-
+    // Relació 1-N amb Note
     @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<Note> notes;
 
+    // Relació N-N amb note (Shared_Note)
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<Shared_Note> sharedNotes;
+
+    // Relació 1-N amb Version
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Set<Version> versions;
 
     public Set<Shared_Note> getSharedNotes() {
         return sharedNotes;
@@ -83,6 +89,14 @@ public class User {
 
     public void setAuth(String auth) {
         this.auth = auth;
+    }
+
+    public Set<Version> getVersions() {
+        return versions;
+    }
+
+    public void setVersions(Set<Version> versions) {
+        this.versions = versions;
     }
 
     @Override

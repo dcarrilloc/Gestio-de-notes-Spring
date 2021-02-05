@@ -149,6 +149,14 @@ public class UserController {
         userService.updateOAuthUser(username, sessionid);
         return "redirect:/feed";
     }
+
+    @PostMapping("/deleteAccount")
+    public String deleteAccount(){
+        Long userid = userService.getUserById((Long) session.getAttribute("userid")).getUserid();
+        session.invalidate();
+        userService.deleteAccount(userid);
+        return "redirect:/";
+    }
 }
 
 

@@ -27,6 +27,13 @@
         <input type="file" id="imgload" class="form-control-file" name="profile-pic" style="width: 150px; border-radius: 50%; flex-basis: 100%;"/>
     </div>
 
+    <div style="display: flex; flex-flow: row nowrap; justify-content: flex-end; width: 100%; padding-right: 35px">
+        <form action="${pageContext.request.contextPath}/deleteAccount" method="post">
+            <input type="hidden" name="_csrftoken" value="${csrfToken}">
+            <button type="submit" class="btn btn-danger">Delete account</button>
+        </form>
+    </div>
+
     <script>
         // Little code to charge the input file on the img
         $('document').ready(function () {
