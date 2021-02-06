@@ -8,12 +8,12 @@ public class Shared_Note {
     @EmbeddedId
     Shared_NoteCK id;
 
-    @ManyToOne
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @MapsId("noteid")
     @JoinColumn(name = "note_noteid")
     private Note note;
 
-    @ManyToOne
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @MapsId("userid")
     @JoinColumn(name = "user_userid")
     private User user;

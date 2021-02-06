@@ -2,6 +2,7 @@ package com.esliceu.controllers;
 
 import com.esliceu.services.NoteServiceImpl;
 import com.esliceu.services.UserServiceImpl;
+import com.esliceu.services.VersionServiceImpl;
 import com.esliceu.utils.exceptions.Note.NoteNotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -26,6 +27,9 @@ public class RoutingController {
 
     @Autowired
     UserServiceImpl userService;
+
+    @Autowired
+    VersionServiceImpl versionService;
 
     @Autowired
     HttpSession session;
@@ -69,9 +73,6 @@ public class RoutingController {
         String date1temp = date1.replace('/', '-');
         String date2temp = date2.replace('/', '-');
 
-        System.out.println(date1temp);
-        System.out.println(date2temp);
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
         LocalDateTime dateFrom = LocalDate.parse(date1temp, formatter).atStartOfDay();
         LocalDateTime dateTo = LocalDate.parse(date2temp, formatter).atStartOfDay();
@@ -102,6 +103,7 @@ public class RoutingController {
             model.addAttribute("nextPageAvailable", true);
         }
 
+        System.out.println("Sessionid: " + sessionUserId);
         String username = userService.getUserById(sessionUserId).getUsername();
         if(username.equals("")) {
             model.addAttribute("username", userService.getUserById(sessionUserId).getEmail());
@@ -131,6 +133,7 @@ public class RoutingController {
                 model.addAttribute("permissionMode", "EDITOR");
             }
             model.addAttribute("usersShared", noteService.getSharedUsersFromNote(sessionUserId, id));
+            model.addAttribute("versionList", versionService.getVersionFromNote(id));
         } else {
             // If user not owns the note cannot edit, just see (if it's shared).
             // Checking if note is shared with the user in view mode...

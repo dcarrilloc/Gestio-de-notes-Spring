@@ -27,13 +27,11 @@ public class Note {
     private User owner;
 
     // Relació N-M amb User (Shared_Note)
-    @OneToMany(mappedBy = "note", fetch = FetchType.EAGER)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(mappedBy = "note", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private Set<Shared_Note> sharedNotes;
 
     // Relació 1-N amb Version
-    @OneToMany(mappedBy = "note", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(mappedBy = "note", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private Set<Version> versions;
 
     public Set<Shared_Note> getSharedNotes() {
