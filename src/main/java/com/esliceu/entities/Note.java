@@ -1,11 +1,10 @@
 package com.esliceu.entities;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Entity(name="Note")
@@ -32,7 +31,7 @@ public class Note {
 
     // Relació 1-N amb Version
     @OneToMany(mappedBy = "note", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-    private Set<Version> versions;
+    private List<Version> versions;
 
     public Set<Shared_Note> getSharedNotes() {
         return sharedNotes;
@@ -90,11 +89,11 @@ public class Note {
         this.owner = owner;
     }
 
-    public Set<Version> getVersions() {
+    public List<Version> getVersions() {
         return versions;
     }
 
-    public void setVersions(Set<Version> versions) {
+    public void setVersions(List<Version> versions) {
         this.versions = versions;
     }
 

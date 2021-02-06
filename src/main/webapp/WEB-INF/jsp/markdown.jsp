@@ -20,10 +20,10 @@
     <form action="${pageContext.request.contextPath}/saveNote" method="POST">
         <div style="background-color: #424242 !important; border-radius: 5px;">
             <div class="form-group" style="height: 50px; padding: 1rem 2rem 0 2rem;">
-                <input type="text" id="exampleFormControlInput1" name="title" value="${note.title}" placeholder="Title" style="background-color: #424242 !important; border: none; color: white; font-size: larger; width: 100%; outline: none;">
+                <input type="text" id="exampleFormControlInput1" name="title" value="${version.title}" placeholder="Title" style="background-color: #424242 !important; border: none; color: white; font-size: larger; width: 100%; outline: none;">
             </div>
             <div class="form-group" style="padding: 1rem 2rem 0 2rem;">
-                <textarea id="exampleFormControlTextarea1" rows="15" name="body" placeholder="Body" style="background-color: #424242 !important; border: none; color: white; width: 100%; outline: none;">${note.body}</textarea>
+                <textarea id="exampleFormControlTextarea1" rows="15" name="body" placeholder="Body" style="background-color: #424242 !important; border: none; color: white; width: 100%; outline: none;">${version.body}</textarea>
             </div>
         </div>
         <input type="hidden" name="noteid" value="${note.noteid}">

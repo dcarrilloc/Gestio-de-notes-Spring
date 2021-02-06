@@ -3,6 +3,7 @@ package com.esliceu.controllers;
 import com.esliceu.entities.User;
 import com.esliceu.services.NoteServiceImpl;
 import com.esliceu.services.UserServiceImpl;
+import com.esliceu.utils.exceptions.User.UserNotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,16 +29,16 @@ public class UserController {
         session.invalidate();
          /* FORM VALIDATION */
 
-        User user = userService.getUserByEmailAndAuthAndPassword(email, "NATIVE", password);
-
-        if(user == null) {
+        //User user = userService.getUserByEmailAndAuthAndPassword(email, "NATIVE", password);
+        try {
+            Long userid = userService.getUserByEmailAndAuthAndPassword(email, "NATIVE", password).getUserid();
+            session.setAttribute("userid", userid);
+            return "redirect:/feed";
+        } catch (UserNotFound e) {
             // Usuario no existe
             model.addAttribute("error", "Usuario no encontrado");
             return "login";
         }
-
-        session.setAttribute("userid", user.getUserid());
-        return "redirect:/feed";
     }
 
     @PostMapping("/register")

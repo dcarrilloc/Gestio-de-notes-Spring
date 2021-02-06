@@ -16,10 +16,7 @@ public class Version {
     @Type(type="text")
     private String body;
     private LocalDateTime creationDate;
-
-    @ManyToOne
-    @JoinColumn(name = "editor_id", nullable = false)
-    private User user;
+    private String editor;
 
     // Relació N-1 amb Note
     @ManyToOne(fetch = FetchType.EAGER)
@@ -66,12 +63,12 @@ public class Version {
         this.note = note;
     }
 
-    public User getUser() {
-        return user;
+    public String getEditor() {
+        return editor;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setEditor(String editor) {
+        this.editor = editor;
     }
 
     @Override

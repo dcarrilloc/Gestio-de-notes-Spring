@@ -103,7 +103,6 @@ public class RoutingController {
             model.addAttribute("nextPageAvailable", true);
         }
 
-        System.out.println("Sessionid: " + sessionUserId);
         String username = userService.getUserById(sessionUserId).getUsername();
         if(username.equals("")) {
             model.addAttribute("username", userService.getUserById(sessionUserId).getEmail());
@@ -125,22 +124,20 @@ public class RoutingController {
     public String detailNote(Model model, @RequestParam Long id) {
         Long sessionUserId = (Long) session.getAttribute("userid");
         model.addAttribute("username", userService.getUserById(sessionUserId).getUsername());
+        Long noteid = versionService.getNoteFromVersionId(id).getNoteid();
 
-        if(noteService.checkNoteOwnership(sessionUserId, id) || noteService.checkPermission(sessionUserId, id).equals("EDITOR")) {
-            if(noteService.checkNoteOwnership(sessionUserId, id)) {
+        if(noteService.checkNoteOwnership(sessionUserId, noteid) || noteService.checkPermission(sessionUserId, noteid).equals("EDITOR")) {
+            if(noteService.checkNoteOwnership(sessionUserId, noteid)) {
                 model.addAttribute("ownership", true);
             } else {
                 model.addAttribute("permissionMode", "EDITOR");
             }
-            model.addAttribute("usersShared", noteService.getSharedUsersFromNote(sessionUserId, id));
-            model.addAttribute("versionList", versionService.getVersionFromNote(id));
+            model.addAttribute("usersShared", noteService.getSharedUsersFromNote(sessionUserId, noteid));
+            model.addAttribute("versionList", versionService.getVersionFromNote(noteid));
         } else {
             // If user not owns the note cannot edit, just see (if it's shared).
             // Checking if note is shared with the user in view mode...
-            System.out.println("Comprobamos que la nota esté compartida con el usuario y que sea de tipo view");
-            System.out.println(noteService.checkNoteIsSharedByUserId(sessionUserId, id));
-            System.out.println(noteService.checkPermission(sessionUserId, id).equals("VIEW"));
-            if(noteService.checkNoteIsSharedByUserId(sessionUserId, id) && noteService.checkPermission(sessionUserId, id).equals("VIEW")) {
+            if(noteService.checkNoteIsSharedByUserId(sessionUserId, noteid) && noteService.checkPermission(sessionUserId, noteid).equals("VIEW")) {
                 // Note shared with user in view mode
                 model.addAttribute("permissionMode", "VIEW");
             } else {
@@ -148,7 +145,8 @@ public class RoutingController {
                 return "redirect:/feed";
             }
         }
-        model.addAttribute("note", noteService.getParsedNote(id, true));
+        model.addAttribute("note", noteService.getNoteById(noteid));
+        model.addAttribute("version", versionService.getParsedBody(id, true));
 
         return "detailNote";
     }
@@ -157,10 +155,13 @@ public class RoutingController {
     public String editNote(Model model, @RequestParam Long id) {
         Long sessionUserId = (Long) session.getAttribute("userid");
         model.addAttribute("username", userService.getUserById(sessionUserId).getUsername());
+        Long noteid = versionService.getNoteFromVersionId(id).getNoteid();
+
 
         // If user owns the note, he can edit it. If not, return to detailNote.
-        if(noteService.checkNoteOwnership(sessionUserId, id) || noteService.checkPermission(sessionUserId, id).equals("EDITOR")) {
-            model.addAttribute("note", noteService.getNoteById(id));
+        if(noteService.checkNoteOwnership(sessionUserId, noteid) || noteService.checkPermission(sessionUserId, noteid).equals("EDITOR")) {
+            model.addAttribute("note", noteService.getNoteById(noteid));
+            model.addAttribute("version", versionService.getVersionFromId(id));
             return "markdown";
         }
 

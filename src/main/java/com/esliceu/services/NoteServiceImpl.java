@@ -77,7 +77,7 @@ public class NoteServiceImpl implements NoteService {
         v.setCreationDate(LocalDateTime.now());
         v.setNote(n);
         Optional<User> editor = userRepo.findById(userid);
-        editor.ifPresent(v::setUser);
+        editor.ifPresent(user -> v.setEditor(user.getUsername()));
 
         noteRepo.save(n);
         versionRepo.save(v);
@@ -138,33 +138,6 @@ public class NoteServiceImpl implements NoteService {
             return userid.equals(note.getOwner().getUserid());
         }
         return false;
-    }
-
-    public Note getParsedNote(Long noteid, boolean toHTML) {
-        Note note = noteRepo.findById(noteid).get();
-        Parser parser = Parser.builder().build();
-        Node document = parser.parse(note.getBody());
-
-        Note renderedNote = new Note();
-        renderedNote.setNoteid(noteid);
-        renderedNote.setTitle(note.getTitle());
-        renderedNote.setCreationDate(note.getCreationDate());
-        renderedNote.setLastModDate(note.getLastModDate());
-        renderedNote.setOwner(note.getOwner());
-
-        if (toHTML) {
-            // If note is going to be rendered as HTML.
-            HtmlRenderer renderer = HtmlRenderer.builder().escapeHtml(true).sanitizeUrls(true).build();
-            String parsedBody = renderer.render(document);
-            renderedNote.setBody(parsedBody);
-        } else {
-            // If note is going to be rendered as plain text.
-            TextContentRenderer renderer = TextContentRenderer.builder().build();
-            String parsedBody = renderer.render(document);
-            renderedNote.setBody(parsedBody);
-        }
-
-        return renderedNote;
     }
 
     public void shareNote(String username, Long noteid, Long userid, String permissionMode) {
