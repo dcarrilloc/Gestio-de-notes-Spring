@@ -36,7 +36,6 @@ public class NoteServiceImpl implements NoteService {
     @Autowired
     VersionRepo versionRepo;
 
-
     public Note getNoteById(Long noteid) {
         Optional<Note> optionalNote = noteRepo.findById(noteid);
         if(optionalNote.isPresent()) {
@@ -163,6 +162,27 @@ public class NoteServiceImpl implements NoteService {
         }
     }
 
+    public void transferOwnership(Long noteid, String username) throws Exception {
+        Optional<Note> optionalNote = noteRepo.findById(noteid);
+        Optional<User> optionalUser = Optional.ofNullable(userRepo.findByUsername(username));
+        if(optionalUser.isPresent() && optionalNote.isPresent()) {
+            Note note = optionalNote.get();
+            User user = optionalUser.get();
+            Note updatedNote = new Note();
+            updatedNote.setNoteid(note.getNoteid());
+            updatedNote.setTitle(note.getTitle());
+            updatedNote.setBody(note.getTitle());
+            updatedNote.setCreationDate(note.getCreationDate());
+            updatedNote.setLastModDate(note.getLastModDate());
+            updatedNote.setVersions(note.getVersions());
+            updatedNote.setSharedNotes(note.getSharedNotes());
+            updatedNote.setOwner(user);
+            noteRepo.save(updatedNote);
+        } else {
+            throw new Exception();
+        }
+    }
+
     public String checkPermission(Long userid, Long noteid) {
         Optional<Note> optionalNote = noteRepo.findById(noteid);
         Optional<User> optionalUser = userRepo.findById(userid);
@@ -225,13 +245,6 @@ public class NoteServiceImpl implements NoteService {
             }
         }
     }
+
 }
-
-
-
-
-
-
-
-
 

@@ -2,13 +2,14 @@ package com.esliceu.controllers;
 
 import com.esliceu.services.NoteServiceImpl;
 import com.esliceu.services.UserServiceImpl;
+import com.esliceu.services.VersionService;
+import com.esliceu.services.VersionServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpSession;
-import java.util.Arrays;
 
 @Controller
 public class NoteController {
@@ -17,6 +18,9 @@ public class NoteController {
 
     @Autowired
     UserServiceImpl userService;
+
+    @Autowired
+    VersionServiceImpl versionService;
 
     @Autowired
     HttpSession session;
@@ -43,13 +47,13 @@ public class NoteController {
     }
 
     @PostMapping("/shareNote")
-    public String shareNote(@RequestParam(name = "option") String user, @RequestParam(name = "noteid") Long noteid, @RequestParam(name = "permissionMode") String permissionMode){
+    public String shareNote(@RequestParam(name = "option") String user, @RequestParam(name = "noteid") Long noteid, @RequestParam(name = "permissionMode") String permissionMode) throws Exception {
         Long ownerid = (Long) session.getAttribute("userid");
 
-        // Checking correct permission mode...
         if(permissionMode.equals("EDITOR") || permissionMode.equals("VIEW")) {
             noteService.shareNote(user, noteid, ownerid, permissionMode);
-        }
+        } else if(permissionMode.equals("TRANSFER_OWNER"))
+            noteService.transferOwnership(noteid, user);
         return "redirect:/feed";
     }
 
@@ -59,13 +63,13 @@ public class NoteController {
         noteService.deleteUserFromSharedNote(noteid, ownerid, userid);
         return "redirect:/feed";
     }
+
+    @PostMapping("/copyNote")
+    public String copyNote(@RequestParam(name = "versionid") Long versionid) throws Exception {
+        Long userid = (Long) session.getAttribute("userid");
+        versionService.makeCopy(versionid, userid);
+        return "redirect:/feed";
+    }
 }
-
-
-
-
-
-
-
 
 

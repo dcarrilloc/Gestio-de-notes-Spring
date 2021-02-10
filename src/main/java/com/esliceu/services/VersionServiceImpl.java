@@ -1,8 +1,10 @@
 package com.esliceu.services;
 
 import com.esliceu.entities.Note;
+import com.esliceu.entities.User;
 import com.esliceu.entities.Version;
 import com.esliceu.repos.NoteRepo;
+import com.esliceu.repos.UserRepo;
 import com.esliceu.repos.VersionRepo;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
@@ -11,6 +13,7 @@ import org.commonmark.renderer.text.TextContentRenderer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -22,7 +25,13 @@ public class VersionServiceImpl implements VersionService {
     VersionRepo versionRepo;
 
     @Autowired
+    UserRepo userRepo;
+
+    @Autowired
     NoteRepo noteRepo;
+
+    @Autowired
+    NoteServiceImpl noteService;
 
     public Version getVersionFromId(Long versionid) {
         Optional<Version> optionalVersion = versionRepo.findById(versionid);
@@ -71,5 +80,17 @@ public class VersionServiceImpl implements VersionService {
             return renderedVersion;
         }
         return null;
+    }
+
+    public void makeCopy(Long versionid, Long userid) throws Exception {
+        Optional<Version> optionalVersion = versionRepo.findById(versionid);
+        Optional<User> optionalUser = userRepo.findById(userid);
+        if(optionalVersion.isPresent() && optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            Version version = optionalVersion.get();
+            noteService.saveNote(null, version.getTitle(), version.getBody(), user.getUserid());
+        } else {
+            throw new Exception();
+        }
     }
 }

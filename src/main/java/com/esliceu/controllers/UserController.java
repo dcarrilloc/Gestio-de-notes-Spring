@@ -4,14 +4,17 @@ import com.esliceu.entities.User;
 import com.esliceu.services.NoteServiceImpl;
 import com.esliceu.services.UserServiceImpl;
 import com.esliceu.utils.exceptions.User.UserNotFound;
+import com.google.common.cache.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpSession;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 
 @Controller
 public class UserController {
@@ -25,44 +28,127 @@ public class UserController {
     HttpSession session;
 
     @PostMapping("/login")
-    public String userlogin(Model model, @RequestParam(name = "email") String email, @RequestParam(name = "password") String password){
+    public String userlogin(Model model,
+                            @RequestParam(name = "email") String email,
+                            @RequestParam(name = "password") String password,
+                            @RequestParam(name = "_csrftoken") String csrfToken) throws Exception {
         session.invalidate();
-         /* FORM VALIDATION */
-
-        //User user = userService.getUserByEmailAndAuthAndPassword(email, "NATIVE", password);
+        short status;
         try {
-            Long userid = userService.getUserByEmailAndAuthAndPassword(email, "NATIVE", password).getUserid();
-            session.setAttribute("userid", userid);
-            return "redirect:/feed";
-        } catch (UserNotFound e) {
-            // Usuario no existe
-            model.addAttribute("error", "Usuario no encontrado");
-            return "login";
+            status = userService.checkLoginCredentials(email, password);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+            throw new Exception();
         }
+
+        switch (status) {
+            case 0: {
+                // Correct auth
+                Long userid = userService.getUserByEmailAndAuth(email, "NATIVE").getUserid();
+                session.setAttribute("userid", userid);
+                return "redirect:/feed";
+            }
+            case 1: {
+                // 1: user not found on ddbb
+                model.addAttribute("status", 1);
+                model.addAttribute("usernameValidation", "is-invalid");
+                model.addAttribute("password", "is-invalid");
+                model.addAttribute("csrfToken", csrfToken);
+                return "login";
+            }
+            case 2: {
+                // 2: user found but incorrect password.
+                model.addAttribute("status", 2);
+                model.addAttribute("usernameValidation", " is-valid");
+                model.addAttribute("password", "is-invalid");
+                model.addAttribute("csrfToken", csrfToken);
+                return "login";
+            }
+            case 3: {
+                // 3: something went wrong.
+                throw new Exception();
+            }
+        }
+        throw new Exception();
     }
 
     @PostMapping("/register")
-    public String userregister(Model model,@RequestParam(name = "username") String username,
-                            @RequestParam(name = "email") String email,
-                            @RequestParam(name = "password1") String password1,
-                            @RequestParam(name = "password2") String password2){
+    public String userregister(@RequestParam(name = "username", required = false) String username,
+                               @RequestParam(name = "email", required = false) String email,
+                               @RequestParam(name = "password1", required = false) String password1,
+                               @RequestParam(name = "password2", required = false) String password2,
+                               @RequestParam(name = "_csrftoken") String csrfToken,
+                               Model model) throws Exception {
 
-        /* FORM VALIDATION */
+        short status = userService.checkRegisterCredentials(username, email, password1, password2, "NATIVE");
 
-        if(password1.equals(password2)) {
-            userService.nativeRegister(username, email, "NATIVE", password1);
-            User user = userService.getUserByEmailAndAuthAndPassword(email, "NATIVE", password1);
-            session.setAttribute("userid", user.getUserid());
-            return "redirect:/feed";
-        } else {
-            model.addAttribute("error", "passwordMismatching");
+        switch (status) {
+            case 0: {
+                // Correct syntax. Creating new user
+                Long createdUserId = userService.nativeRegister(username, email, "NATIVE", password1);
+                if (createdUserId != null) {
+                    // Login user
+                    model.addAttribute("username", username);
+                    session.setAttribute("userid", createdUserId);
+                    return "redirect:/feed";
+                } else {
+                    // Username exists
+                    model.addAttribute("status", 4);
+                    model.addAttribute("usernameValidation", "is-invalid");
+                    model.addAttribute("password", "is-invalid");
+                    model.addAttribute("csrfToken", csrfToken);
+                    return "register";
+                }
+            }
+            case 1: {
+                // 1: invalid username. Regexp fail.
+                model.addAttribute("status", 1);
+                model.addAttribute("usernameValidation", "is-invalid");
+                model.addAttribute("password", "is-invalid");
+                model.addAttribute("csrfToken", csrfToken);
+                return "register";
+            }
+            case 2: {
+                // 2: invalid email. Regexp fail.
+                model.addAttribute("status", 2);
+                model.addAttribute("usernameValidation", "is-valid");
+                model.addAttribute("emailValidation", "is-invalid");
+                model.addAttribute("csrfToken", csrfToken);
+                return "register";
+            }
+            case 3: {
+                // 3: invalid password. Regexp fail.
+                model.addAttribute("status", 3);
+                model.addAttribute("usernameValidation", "is-valid");
+                model.addAttribute("emailValidation", "is-valid");
+                model.addAttribute("passwordValidation", "is-invalid");
+                model.addAttribute("csrfToken", csrfToken);
+                return "register";
+            }
+            case 4: {
+                // 4. Both password input does not match.
+                model.addAttribute("status", 4);
+                model.addAttribute("usernameValidation", "is-valid");
+                model.addAttribute("emailValidation", "is-valid");
+                model.addAttribute("passwordValidation", "is-invalid");
+                model.addAttribute("csrfToken", csrfToken);
+                return "register";
+            }
+            case 5: {
+                // 5. Password must not be the same as username.
+                model.addAttribute("status", 5);
+                model.addAttribute("usernameValidation", "is-valid");
+                model.addAttribute("emailValidation", "is-valid");
+                model.addAttribute("passwordValidation", "is-invalid");
+                model.addAttribute("csrfToken", csrfToken);
+                return "register";
+            }
         }
-
-        return "register";
+        throw new Exception();
     }
 
     @PostMapping("/logout")
-    public String userlogout(){
+    public String userlogout() {
         session.invalidate();
         return "redirect:/";
     }
@@ -72,7 +158,7 @@ public class UserController {
                           @RequestParam(name = "email", required = false) String email,
                           @RequestParam(name = "pass1", required = false) String pass1,
                           @RequestParam(name = "pass2", required = false) String pass2,
-                          Model model) throws NoSuchAlgorithmException {
+                          Model model) throws Exception {
 
         Long sessionid = (Long) session.getAttribute("userid");
         User user = userService.getUserById(sessionid);
@@ -90,7 +176,7 @@ public class UserController {
         model.addAttribute("user", user);
 
         User existent = userService.getUserByUsername(username);
-        if(existent != null && (!user.getUserid().equals(existent.getUserid()))) {
+        if (existent != null && (!user.getUserid().equals(existent.getUserid()))) {
             model.addAttribute("status", 6);
             model.addAttribute("usernameValidation", "is-invalid");
             model.addAttribute("emailValidation", "is-valid");
@@ -152,7 +238,7 @@ public class UserController {
     }
 
     @PostMapping("/deleteAccount")
-    public String deleteAccount(){
+    public String deleteAccount() {
         Long userid = userService.getUserById((Long) session.getAttribute("userid")).getUserid();
         session.invalidate();
         userService.deleteAccount(userid);

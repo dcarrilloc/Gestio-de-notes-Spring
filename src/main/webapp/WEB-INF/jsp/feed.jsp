@@ -64,7 +64,7 @@
 
             <form action="${pageContext.request.contextPath}/deleteNote" method="post" style="width: 60%; display: flex; flex-flow: row wrap; align-items: center; flex-basis: 100%; justify-content: space-evenly;">
                 <c:forEach var="c" items="${notes}">
-                    <a href="${pageContext.request.contextPath}/detailNote?id=${c.versions.get(c.versions.size() - 1).getVersionid()}" style="text-decoration: none; color: white; margin: 25px 35px;">
+                    <a href="${pageContext.request.contextPath}/detailNote/${c.versions.get(c.versions.size() - 1).getVersionid()}" style="text-decoration: none; color: white; margin: 25px 35px;">
                         <c:choose>
                         <c:when test="${username.equals(c.getOwner().username)}">
                         <div class="card shadow p-3 mb-5 bg-white rounded" style="width: 18rem; height: 400px; background-color: #424242 !important;">

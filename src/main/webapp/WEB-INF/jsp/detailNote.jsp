@@ -19,7 +19,6 @@
         .accordion-button {
             color: white !important;
             display: block !important;
-
         }
 
         .accordion-button:not(.collapsed) {
@@ -80,7 +79,7 @@
                                         </div>
                                     </button>
                                 </h2>
-                                <div id="collapse${pointer.index+1}" class="accordion-collapse collapse show"
+                                <div id="collapse${pointer.index+1}" class="accordion-collapse collapse"
                                      aria-labelledby="heading${pointer.index+1}"
                                      data-bs-parent="#accordionExample">
                                     <div class="accordion-body">
@@ -90,10 +89,15 @@
                                         <div>
                                                 ${c.body}
                                         </div>
-                                        <div style="width: 100%; margin-top: 10px; display: flex; flex-flow: row nowrap; justify-content: center;">
+                                        <div style="width: 100%; margin-top: 10px; display: flex; flex-flow: row wrap; justify-content: space-evenly;">
                                             <a class="btn btn-success"
-                                               href="${pageContext.request.contextPath}/detailNote?id=${c.versionid}"
+                                               href="${pageContext.request.contextPath}/detailNote/${c.versionid}"
                                                role="button">View</a>
+                                            <form method="post" action="${pageContext.request.contextPath}/copyNote">
+                                                <input type="hidden" name="versionid" value="${c.versionid}">
+                                                <input type="hidden" name="_csrftoken" value="${csrfToken}">
+                                                <button type="submit" class="btn btn-success" role="button">Make copy</button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
@@ -110,7 +114,7 @@
             <fieldset disabled>
                 </c:if>
 
-                <a href="${pageContext.request.contextPath}/edit?id=${version.versionid}"
+                <a href="${pageContext.request.contextPath}/edit/${version.versionid}"
                    style="cursor: pointer; text-decoration: none; color: white;">
                     <div style="background-color: #424242 !important; border-radius: 5px;">
                         <div class="form-group" style="height: 50px; padding: 1rem 2rem 0 2rem;">
@@ -146,6 +150,7 @@
                         <select class="form-select" id="inputGroupSelect01" name="permissionMode">
                             <option value="VIEW" selected>View</option>
                             <option value="EDITOR">Editor</option>
+                            <option value="TRANSFER_OWNER">Make owner</option>
                         </select>
                     </div>
 

@@ -45,10 +45,10 @@ public class AppConfig implements WebMvcConfigurer {
                         "/md", "/shareNote", "/profile");
 
         registry.addInterceptor(generateCSRFTokenInterceptor)
-                .addPathPatterns("/*");
+                .addPathPatterns("/**");
 
         registry.addInterceptor(checkCSRFTokenInterceptor)
-                .addPathPatterns("/*");
+                .addPathPatterns("/**");
     }
 /*
     @Bean

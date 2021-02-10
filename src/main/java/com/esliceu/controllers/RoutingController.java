@@ -4,15 +4,13 @@ import com.esliceu.services.NoteServiceImpl;
 import com.esliceu.services.UserServiceImpl;
 import com.esliceu.services.VersionServiceImpl;
 import com.esliceu.utils.exceptions.Note.NoteNotFound;
+import com.esliceu.utils.exceptions.Note.UnauthorizedNote;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
@@ -120,8 +118,8 @@ public class RoutingController {
         return "detailNote";
     }
 
-    @GetMapping("/detailNote")
-    public String detailNote(Model model, @RequestParam Long id) {
+    @GetMapping("/detailNote/{id}")
+    public String detailNote(Model model, @PathVariable Long id) {
         Long sessionUserId = (Long) session.getAttribute("userid");
         model.addAttribute("username", userService.getUserById(sessionUserId).getUsername());
         Long noteid = versionService.getNoteFromVersionId(id).getNoteid();
@@ -142,7 +140,7 @@ public class RoutingController {
                 model.addAttribute("permissionMode", "VIEW");
             } else {
                 // Note NOT shared with user
-                return "redirect:/feed";
+                throw new UnauthorizedNote();
             }
         }
         model.addAttribute("note", noteService.getNoteById(noteid));
@@ -151,8 +149,8 @@ public class RoutingController {
         return "detailNote";
     }
 
-    @GetMapping("/edit")
-    public String editNote(Model model, @RequestParam Long id) {
+    @GetMapping("/edit/{id}")
+    public String editNote(Model model, @PathVariable Long id) {
         Long sessionUserId = (Long) session.getAttribute("userid");
         model.addAttribute("username", userService.getUserById(sessionUserId).getUsername());
         Long noteid = versionService.getNoteFromVersionId(id).getNoteid();
@@ -165,7 +163,7 @@ public class RoutingController {
             return "markdown";
         }
 
-        return "redirect:/detailNote?id=" + id;
+        throw new UnauthorizedNote();
     }
 
     @GetMapping("/profile")

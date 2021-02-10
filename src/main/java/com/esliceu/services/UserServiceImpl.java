@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import javax.swing.text.html.Option;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -32,8 +33,14 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
-    public User getUserByEmailAndAuthAndPassword(String email, String auth, String password) {
-        return userRepo.findByEmailAndAuthAndPassword(email, auth, password);
+    public User getUserByEmailAndAuthAndPassword(String email, String auth, String password) throws NoSuchAlgorithmException {
+        Optional<User> optionalUser = Optional.ofNullable(userRepo.findByEmailAndAuthAndPassword(email, auth, password));
+        return optionalUser.orElse(null);
+    }
+
+    public User getUserByEmailAndAuth(String email, String auth) {
+        Optional<User> optionalUser = Optional.ofNullable(userRepo.findByEmailAndAuth(email, auth));
+        return optionalUser.orElse(null);
     }
 
     public User getUserByUsername(String username) {
@@ -57,12 +64,18 @@ public class UserServiceImpl implements UserService {
         userRepo.save(u);
     }
 
-    public Long nativeRegister(String username, String email, String auth, String password1) {
+    public Long nativeRegister(String username, String email, String auth, String password1) throws NoSuchAlgorithmException {
+        Optional<User> optionalUserByUsername = Optional.ofNullable(userRepo.findByUsername(username));
+        Optional<User> optionalUserByEmailAndAuth = Optional.ofNullable(userRepo.findByEmailAndAuth(email, "NATIVE"));
+        if(optionalUserByUsername.isPresent() || optionalUserByEmailAndAuth.isPresent()) {
+            // Existent user
+            return null;
+        }
         User u = new User();
         u.setUsername(username);
         u.setEmail(email);
         u.setAuth(auth);
-        u.setPassword(password1);
+        u.setPassword(encryptPassword(password1));
         return userRepo.save(u).getUserid();
     }
 
@@ -84,20 +97,32 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public short checkRegisterCredentials(String username, String email, String password1, String password2, String authMethod) {
+    public short checkRegisterCredentials(String username, String email, String password1, String password2, String authMethod) throws Exception {
         // Return codes:
-        // 0: okay.
+        // 0: correct register.
         // 1: invalid username.
         // 2: invalid email.
         // 3: invalid password.
         // 4: passwords does not match.
         // 5: passwords matches username.
 
-        // Length >= 3; Valid characters: a-z, A-Z, 0-9, points, dashes and underscores.
-        String userPattern = "^[a-zA-Z0-9._-]{3,}$";
-        boolean userValid = username.matches(userPattern);
-
         if(authMethod.equals("NATIVE")) {
+            if(username == null) {
+                return 1;
+            }
+
+            if(email == null) {
+                return 2;
+            }
+
+            if(password1 == null || password2 == null){
+                return 3;
+            }
+
+            // Length >= 3; Valid characters: a-z, A-Z, 0-9, points, dashes and underscores.
+            String userPattern = "^[a-zA-Z0-9._-]{3,}$";
+            boolean userValid = username.matches(userPattern);
+
             // no whitespace allowed in the entire string and at least eight chars
             String passPattern = "(?=\\S+$).{8,}";
             boolean passValid = password1.matches(passPattern);
@@ -105,14 +130,36 @@ public class UserServiceImpl implements UserService {
             String emailPattern = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
             boolean emailValid = email.matches(emailPattern);
 
+            if(!userValid) return 1;
             if(!emailValid) return 2;
             if(!passValid) return 3;
             if(!password1.equals(password2)) return 4;
             if(password1.equals(username)) return 5;
+        } else {
+            throw new Exception();
         }
 
-        if(!userValid) return 1;
         return 0;
+    }
+
+    @Override
+    public short checkLoginCredentials(String email, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        // Return codes:
+        // 0: okay.
+        // 1: user not found.
+        // 2: user find but incorrect password.
+        // 3: something went wrong.
+
+        User user = userRepo.findByEmailAndAuth(email, "NATIVE");
+        if(user == null) return 1;
+        System.out.println(user.toString());
+
+        boolean matched = validatePassword(password, user.getPassword());
+        System.out.println("matched: " + matched);
+
+        if(email.equals(user.getEmail()) && matched) return 0;
+        if(email.equals(user.getEmail()) && !matched) return 2;
+        return 3;
     }
 
     private String encryptPassword(String pass) throws NoSuchAlgorithmException {

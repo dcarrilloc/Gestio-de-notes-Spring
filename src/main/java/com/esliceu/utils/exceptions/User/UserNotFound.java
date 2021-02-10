@@ -1,7 +1,7 @@
 package com.esliceu.utils.exceptions.User;
 
 public class UserNotFound extends UserException {
-    public UserNotFound(String errorMessage) {
-        super(errorMessage);
+    public UserNotFound() {
+        super("User not found. Try again later.");
     }
 }
